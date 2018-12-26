@@ -1,0 +1,2 @@
+/database-data/mysql/*
+!/database-data/mysql/.keep
