@@ -1,19 +1,7 @@
-##
-# Sample Ruby delegate script containing stubs and documentation for all
-# available delegate methods. See the "Delegate Script" section of the user
-# manual for more information.
-#
-# The application will create an instance of this class early in the request
-# cycle and dispose of it at the end of the request cycle. Instances don't need
-# to be thread-safe, but sharing information across instances (requests)
-# **does** need to be thread-safe.
-#
-# This version of the script works with Cantaloupe version 4, and not earlier
-# versions. Likewise, earlier versions of the script are not compatible with
-# Cantaloupe 4.
-#
-class CustomDelegate
+require 'java'
+require File.join(Dir.pwd, 'database_connectivity')
 
+class CustomDelegate
   ##
   # Attribute for the request context, which is a hash containing information
   # about the current request.
@@ -130,6 +118,18 @@ class CustomDelegate
   #                      given identifier, or nil if not found.
   #
   def filesystemsource_pathname(options = {})
+    logger.debug('Hello world from filesystemsource_pathname()')
+
+    begin
+      logger.debug("The first filestore record is #{FileStore.first.to_json}")
+    rescue => e
+      logger.debug "uh ohhhh....#{e}"
+    end
+
+    # hello
+    logger.debug('waka')
+    # This is a placeholder
+     "/usr/src/cantaloupe/fixture-image.jpg"
   end
 
   ##
@@ -210,5 +210,11 @@ class CustomDelegate
   def redactions(options = {})
     []
   end
+
+private
+
+def logger
+  @logger ||= Java::edu.illinois.library.cantaloupe.script.Logger
+end
 
 end
