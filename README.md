@@ -15,6 +15,8 @@ to install. In production, I don't think it would be run via Docker.
 
 ## Running
 
+1.  `docker-compose up`
+
 ## Trouble Shooting
 
 ### Connecting to MySQL

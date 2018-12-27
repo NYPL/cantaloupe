@@ -1,5 +1,15 @@
 version: '3.4'
 services:
+  cantaloupe:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env
+    volumes:
+      - './cantaloupe-4.0.2:/usr/src/cantaloupe'
+    ports:
+      - '8182:8182'
   filestore-db:
     build:
       context: ../filestore_databases_docker
