@@ -10,11 +10,3 @@ services:
       - './cantaloupe-4.0.2:/usr/src/cantaloupe'
     ports:
       - '8182:8182'
-  filestore-db:
-    build:
-      context: ../filestore_databases_docker
-      dockerfile: Dockerfile
-    volumes:
-      - ./database-data/mysql:/var/lib/mysql
-    ports:
-      - '3306:3306'
