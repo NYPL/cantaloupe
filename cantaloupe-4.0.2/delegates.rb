@@ -123,7 +123,7 @@ class CustomDelegate
     begin
       # This is just a POC that we can communicate to the database with the correct query.
       # The next step would be to return the correct path, as a string, based on this record's UUID
-      filestore_record = FileStore.where(FILE_ID: context['identifier'], TYPE: %w[s j w r t]).order("TYPE = 's' DESC, TYPE = 'j' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC").first
+      filestore_record = FileStore.where(FILE_ID: context['identifier'], TYPE: %w[s j w r t], STATUS: 4).order("TYPE = 's' DESC, TYPE = 'j' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC").first
       logger.debug("The first filestore record is #{filestore_record.to_json}")
     rescue => e
       logger.debug "uh ohhhh....#{e}"
