@@ -17,11 +17,23 @@ This uses Docker to locally to make it as easy as possible for developers to ins
 
 ## Using
 
-TODO: LOOK INTO MOVING NAME TO ENVIRONMENT VARIABLE
-
-This branch looks for source images in the S3 bucket named `cantaloupe-poc` in
-the `nypl-sandbox` account. The key and secret can be found in parameter store,
+This branch looks for source images in the S3 bucket named set by the `SOURCE_S3_BUCKET_NAME`
+environment variable. The key and secret can be found in parameter store,
 see [.env.example](./.env.example) for the parameter store key.
+
+### Caching
+
+Locally, source and derivative images are cached in `./cantaloupe-4.0.2/cache`
+which is mounted into the container, thanks to [docker-compose.yml](./docker-compose.yml).
+
+In the container, that is the directory `/usr/src/cantaloupe/cache` in both production and
+locally.
+
+#### Clustered Caching
+
+Our first, naive implementation will have each container have its own cache
+but I could see us mounting the cache directory from the host machine into
+the multiple containers so they can share it.
 
 ## Git Workflow
 
