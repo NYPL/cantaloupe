@@ -8,5 +8,6 @@ services:
       - ./.env
     volumes:
       - './cantaloupe-4.0.2:/usr/src/cantaloupe'
+      - './cantaloupe-4.0.2/cache:/usr/src/cantaloupe/cache'
     ports:
       - '8182:8182'
