@@ -8,8 +8,6 @@ if [ -z "$TRAVIS_PULL_REQUEST" ] || [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
         export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_PRODUCTION
         DOCKER_REPO_URL=$REMOTE_IMAGE_URL
 
-
-
     # This is needed to login on AWS and push the image on ECR
     # Change it accordingly to your docker repo
     pip install --user awscli
