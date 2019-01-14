@@ -14,7 +14,7 @@ if [ -z "$TRAVIS_PULL_REQUEST" ] || [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
       qa)
         export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID_PRODUCTION
         export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_PRODUCTION
-        CLUSTER_NAME=cantaloupe-production
+        CLUSTER_NAME=cantaloupe-qa
         WEB_APP_SERVICE_NAME="cantaloupe-qa"
         ;;
     esac
