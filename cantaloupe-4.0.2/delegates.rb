@@ -174,7 +174,10 @@ class CustomDelegate
   # @return [Hash<String,Object>,nil] Hash containing `bucket` and `key` keys;
   #                                   or nil if not found.
   #
+  # Stephen Schor: Setting bucket name here allows us to configure it as an environment variable
+  # as opposed to setting it in the .properties file, which can't read environment variables.
   def s3source_object_info(options = {})
+    {'bucket' => ENV['SOURCE_S3_BUCKET_NAME'], 'key' => context['identifier']}
   end
 
   ##

@@ -1,4 +1,4 @@
-FROM jruby:9.2
+FROM jruby:9.2 as production
 
 # Default Cantaloupe port
 EXPOSE 8182
@@ -9,10 +9,13 @@ RUN mkdir /usr/src/cantaloupe
 WORKDIR /usr/src/cantaloupe
 
 # Bundle gems at build time
-COPY ./cantaloupe-4.0.2/Gemfile ./
+COPY ./cantaloupe-4.0.2 /usr/src/cantaloupe
 RUN bundle platform
 RUN bundle install
 
-# No need to copy app, it's mounted in docker-compose.yml
-
 CMD java -Dcantaloupe.config=./cantaloupe.properties -Xmx2g -jar cantaloupe-4.0.2.war
+
+FROM production AS development
+
+# In development mode it will be mounted (thanks to docker-compose.yml)
+run rm -rf /usr/src/cantaloupe/*
