@@ -1,4 +1,3 @@
-#TODO: Multi stage this mamah-jamah
 FROM jruby:9.2 as production
 
 # Default Cantaloupe port
