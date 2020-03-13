@@ -1,4 +1,4 @@
-require File.join(Dir.pwd, 'database_connectivity')
+# require File.join(Dir.pwd, 'database_connectivity')
 ##
 # Sample Ruby delegate script containing stubs and documentation for all
 # available delegate methods. See the "Delegate Script" section of the user
