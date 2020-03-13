@@ -1,4 +1,4 @@
-# require File.join(Dir.pwd, 'database_connectivity')
+require File.join(Dir.pwd, 'database_connectivity')
 ##
 # Sample Ruby delegate script containing stubs and documentation for all
 # available delegate methods. See the "Delegate Script" section of the user
@@ -139,11 +139,10 @@ class CustomDelegate
       filestore_record = FileStore.where(FILE_ID: context['identifier'], TYPE: %w[s j w r t], STATUS: 4).order("TYPE = 's' DESC, TYPE = 'j' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC").first
       # logger.debug("The first filestore record is #{filestore_record.to_json}")
       puts "The first filestore record is #{filestore_record.to_json}"
-      if not filestore_record.blank?
+      if !filestore_record.blank?
         uuid = filestore_record.UUID
         uuid =~ /(....)(....)\-(....)\-(....)\-(....)\-(....)(....)(..)../
         path = "/ifs/prod/repo/#{uuid[0..1]}/#{$1}/#{$2}/#{$3}/#{$4}/#{$5}/#{$6}/#{$7}/#{$8}/#{uuid}"
-        puts path
         # logger.debug "/ifs/prod/repo/#{uuid[0..1]}/#{$1}/#{$2}/#{$3}/#{$4}/#{$5}/#{$6}/#{$7}/#{$8}/#{uuid}"
       end
     rescue => e
@@ -151,7 +150,7 @@ class CustomDelegate
       # logger.debug "uh ohhhh....#{e}"
     end
     
-    path.present? ? path : context['identifier'] 
+    path ? path : "/ifs/prod/repo/F4/F48E/6A6E/58BC/11DD/B760/53FF/9956/CD/F48E6A6E-58BC-11DD-B760-53FF9956CD08"
   end
 
   ##
