@@ -1,4 +1,5 @@
-# require File.join(Dir.pwd, 'database_connectivity')
+require File.join(Dir.pwd, 'database_connectivity')
+# reqire 
 ##
 # Sample Ruby delegate script containing stubs and documentation for all
 # available delegate methods. See the "Delegate Script" section of the user
@@ -133,24 +134,29 @@ class CustomDelegate
   def filesystemsource_pathname(options = {})
     # logger.debug('Hello world from filesystemsource_pathname()')
 
-    begin
+    # begin
       # This is just a POC that we can communicate to the database with the correct query.
       # The next step would be to return the correct path, as a string, based on this record's UUID
       filestore_record = FileStore.where(FILE_ID: context['identifier'], TYPE: %w[s j w r t], STATUS: 4).order("TYPE = 's' DESC, TYPE = 'j' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC").first
       # logger.debug("The first filestore record is #{filestore_record.to_json}")
+      path = nil
       puts "The first filestore record is #{filestore_record.to_json}"
-      if !filestore_record.blank?
+      if not filestore_record.nil? #filestore_record.blank?
         uuid = filestore_record.UUID
         uuid =~ /(....)(....)\-(....)\-(....)\-(....)\-(....)(....)(..)../
         path = "/ifs/prod/repo/#{uuid[0..1]}/#{$1}/#{$2}/#{$3}/#{$4}/#{$5}/#{$6}/#{$7}/#{$8}/#{uuid}"
+        puts path
         # logger.debug "/ifs/prod/repo/#{uuid[0..1]}/#{$1}/#{$2}/#{$3}/#{$4}/#{$5}/#{$6}/#{$7}/#{$8}/#{uuid}"
       end
-    rescue => e
+    # rescue => e
       puts "Database configuration seems to be broken."
       # logger.debug "uh ohhhh....#{e}"
-    end
+    # end
     
-    path ? path : "/ifs/prod/repo/F4/F48E/6A6E/58BC/11DD/B760/53FF/9956/CD/F48E6A6E-58BC-11DD-B760-53FF9956CD08"
+    # path.present? ? path : context['identifier'] 
+    puts "path is #{path}"
+    # defined?(path) ? path : context['identifier'] 
+    path.nil? ? context['identifier'] : path
   end
 
   ##
