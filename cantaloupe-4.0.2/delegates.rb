@@ -136,7 +136,7 @@ class CustomDelegate
       url = "jdbc:mysql://prod01-imysql.repo.nypl.org:3306/archive?autoReconnect=true&useSSL=false"
       begin
         connection = java.sql.DriverManager.get_connection(url, 'digital_archive', 'n0thing')
-        query = "SELECT UUID FROM file_store WHERE TYPE in ('s', 'u', 'j', 'w', 'r', 't') AND FILE_ID = ? ORDER BY TYPE = 's' DESC, TYPE = 'u' DESC, TYPE = 'j' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC"
+        query = "SELECT UUID FROM file_store WHERE TYPE in ('u', 's', 'j', 'w', 'r', 't') AND FILE_ID = ? ORDER BY TYPE = 'u' DESC, TYPE = 's' DESC, TYPE = 'j' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC"
         statement = connection.prepare_statement(query)
         statement.setString(1, context['identifier'])
         results = statement.execute_query
