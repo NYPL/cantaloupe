@@ -117,22 +117,42 @@ class CustomDelegate
   # @return [String,nil] Absolute pathname of the image corresponding to the
   #                      given identifier, or nil if not found.
   #
+  # def filesystemsource_pathname(options = {})
+  #   logger.debug('Hello world from filesystemsource_pathname()')
+  #
+  #   begin
+  #     # This is just a POC that we can communicate to the database with the correct query.
+  #     # The next step would be to return the correct path, as a string, based on this record's UUID
+  #     filestore_record = FileStore.where(FILE_ID: context['identifier'], TYPE: %w[s j w r t], STATUS: 4).order("TYPE = 's' DESC, TYPE = 'j' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC").first
+  #     logger.debug("The first filestore record is #{filestore_record.to_json} #{ENV['FILESTORE_DB_NAME']}")
+  #   rescue => e
+  #     logger.debug "uh ohhhh....#{e}"
+  #   end
+  #
+  #   # hello
+  #   logger.debug('waka')
+  #   # This is a placeholder
+  #    "/usr/src/cantaloupe/fixture-image.jpg"
+  # end
   def filesystemsource_pathname(options = {})
     logger.debug('Hello world from filesystemsource_pathname()')
 
     begin
-      # This is just a POC that we can communicate to the database with the correct query.
-      # The next step would be to return the correct path, as a string, based on this record's UUID
       filestore_record = FileStore.where(FILE_ID: context['identifier'], TYPE: %w[s j w r t], STATUS: 4).order("TYPE = 's' DESC, TYPE = 'j' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC").first
+      path = nil
       logger.debug("The first filestore record is #{filestore_record.to_json}")
+      if not filestore_record.nil?
+        uuid = filestore_record.UUID
+        uuid =~ /(....)(....)\-(....)\-(....)\-(....)\-(....)(....)(..)../
+        path = "/ifs/prod/repo/#{uuid[0..1]}/#{$1}/#{$2}/#{$3}/#{$4}/#{$5}/#{$6}/#{$7}/#{$8}/#{uuid}"
+        logger.debug(path)
+      end
     rescue => e
-      logger.debug "uh ohhhh....#{e}"
+      logger.debug("Database configuration seems to be broken.")
     end
-
-    # hello
-    logger.debug('waka')
-    # This is a placeholder
-     "/usr/src/cantaloupe/fixture-image.jpg"
+    
+    logger.debug("path is #{path}")
+    path.nil? ? context['identifier'] : path
   end
 
   ##
