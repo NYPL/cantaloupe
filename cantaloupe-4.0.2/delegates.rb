@@ -1,5 +1,11 @@
-require File.join(Dir.pwd, 'database_connectivity')
-# reqire 
+# require File.join(Dir.pwd, 'database_connectivity')
+# require 'java'
+
+# java -classpath /jars/mysql-connector-java-8.0.19.jar:cantaloupe-4.0.2.war -Dcantaloupe.config=cantaloupe.properties -Xmx2g
+# java -classpath ./jars/mysql-connector-java-8.0.19.jar:cantaloupe-4.0.2.war -Dcantaloupe.config=cantaloupe.properties -Xmx500m edu.illinois.library.cantaloupe.StandaloneEntry
+
+# java -Dcantaloupe.config=cantaloupe.properties -Xmx2g -cp ./jars/mysql-connector-java-8.0.19.jar:cantaloupe-4.0.2.war
+
 ##
 # Sample Ruby delegate script containing stubs and documentation for all
 # available delegate methods. See the "Delegate Script" section of the user
@@ -132,31 +138,38 @@ class CustomDelegate
   #                      given identifier, or nil if not found.
   #
   def filesystemsource_pathname(options = {})
-    # logger.debug('Hello world from filesystemsource_pathname()')
-
-    # begin
-      # This is just a POC that we can communicate to the database with the correct query.
-      # The next step would be to return the correct path, as a string, based on this record's UUID
-      filestore_record = FileStore.where(FILE_ID: context['identifier'], TYPE: %w[s j w r t], STATUS: 4).order("TYPE = 's' DESC, TYPE = 'j' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC").first
-      # logger.debug("The first filestore record is #{filestore_record.to_json}")
+    begin
+      Java::com.mysql.cj.jdbc.Driver
+      connection = nil, statement = nil, uuid = nil
+      url = "jdbc:mysql://prod01-imysql.repo.nypl.org:3306/archive?autoReconnect=true&useSSL=false"
+      begin
+        connection = java.sql.DriverManager.get_connection(url, 'digital_archive', 'n0thing')
+        query = "SELECT UUID FROM file_store WHERE TYPE in ('s', 'j', 'w', 'r', 't') AND FILE_ID = ? ORDER BY TYPE = 's' DESC, TYPE = 'j' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC"
+        statement = connection.prepare_statement(query)
+        statement.setString(1, context['identifier'])
+        results = statement.execute_query
+        uuid = results.next ? results.getString('UUID') : nil
+        puts "FOUND UUID: #{uuid}"
+      ensure
+        connection.close if connection
+        statement.close if statement
+      end
+      
+      # filestore_record = FileStore.where(FILE_ID: context['identifier'], TYPE: %w[s j w r t], STATUS: 4).order("TYPE = 's' DESC, TYPE = 'j' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC").first
       path = nil
-      puts "The first filestore record is #{filestore_record.to_json}"
-      if not filestore_record.nil? #filestore_record.blank?
-        uuid = filestore_record.UUID
+      # puts "The first filestore record is #{filestore_record.to_json}"
+      if not uuid.nil? #filestore_record.blank?
+        # uuid = filestore_record.UUID
         uuid =~ /(....)(....)\-(....)\-(....)\-(....)\-(....)(....)(..)../
         path = "/ifs/prod/repo/#{uuid[0..1]}/#{$1}/#{$2}/#{$3}/#{$4}/#{$5}/#{$6}/#{$7}/#{$8}/#{uuid}"
         puts path
-        # logger.debug "/ifs/prod/repo/#{uuid[0..1]}/#{$1}/#{$2}/#{$3}/#{$4}/#{$5}/#{$6}/#{$7}/#{$8}/#{uuid}"
       end
-    # rescue => e
+    rescue => e
       puts "Database configuration seems to be broken."
-      # logger.debug "uh ohhhh....#{e}"
-    # end
+    end
     
-    # path.present? ? path : context['identifier'] 
     puts "path is #{path}"
-    # defined?(path) ? path : context['identifier'] 
-    path.nil? ? context['identifier'] : path
+    path.nil? ? "/ifs/prod/repo/F4/F48E/6A6E/58BC/11DD/B760/53FF/9956/CD/F48E6A6E-58BC-11DD-B760-53FF9956CD08" : path
   end
 
   ##
