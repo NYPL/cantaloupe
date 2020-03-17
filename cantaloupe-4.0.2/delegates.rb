@@ -1,11 +1,3 @@
-# require File.join(Dir.pwd, 'database_connectivity')
-# require 'java'
-
-# java -classpath /jars/mysql-connector-java-8.0.19.jar:cantaloupe-4.0.2.war -Dcantaloupe.config=cantaloupe.properties -Xmx2g
-# java -classpath ./jars/mysql-connector-java-8.0.19.jar:cantaloupe-4.0.2.war -Dcantaloupe.config=cantaloupe.properties -Xmx500m edu.illinois.library.cantaloupe.StandaloneEntry
-
-# java -Dcantaloupe.config=cantaloupe.properties -Xmx2g -cp ./jars/mysql-connector-java-8.0.19.jar:cantaloupe-4.0.2.war
-
 ##
 # Sample Ruby delegate script containing stubs and documentation for all
 # available delegate methods. See the "Delegate Script" section of the user
@@ -144,7 +136,7 @@ class CustomDelegate
       url = "jdbc:mysql://prod01-imysql.repo.nypl.org:3306/archive?autoReconnect=true&useSSL=false"
       begin
         connection = java.sql.DriverManager.get_connection(url, 'digital_archive', 'n0thing')
-        query = "SELECT UUID FROM file_store WHERE TYPE in ('s', 'j', 'w', 'r', 't') AND FILE_ID = ? ORDER BY TYPE = 's' DESC, TYPE = 'j' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC"
+        query = "SELECT UUID FROM file_store WHERE TYPE in ('s', 'u', 'j', 'w', 'r', 't') AND FILE_ID = ? ORDER BY TYPE = 's' DESC, TYPE = 'u' DESC, TYPE = 'j' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC"
         statement = connection.prepare_statement(query)
         statement.setString(1, context['identifier'])
         results = statement.execute_query
