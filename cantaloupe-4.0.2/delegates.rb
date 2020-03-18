@@ -12,8 +12,9 @@
 # versions. Likewise, earlier versions of the script are not compatible with
 # Cantaloupe 4.
 #
-class CustomDelegate
+require './secrets'
 
+class CustomDelegate
   ##
   # Attribute for the request context, which is a hash containing information
   # about the current request.
@@ -133,15 +134,18 @@ class CustomDelegate
     begin
       Java::com.mysql.cj.jdbc.Driver
       connection = nil, statement = nil, uuid = nil
-      url = "jdbc:mysql://prod01-imysql.repo.nypl.org:3306/archive?autoReconnect=true&useSSL=false"
+      url = Secret.database_configuration[:url]
       begin
-        connection = java.sql.DriverManager.get_connection(url, 'digital_archive', 'n0thing')
-        query = "SELECT UUID FROM file_store WHERE TYPE in ('u', 's', 'j', 'w', 'r', 't') AND FILE_ID = ? ORDER BY TYPE = 'u' DESC, TYPE = 's' DESC, TYPE = 'j' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC"
+        connection = java.sql.DriverManager.get_connection(url, 
+                          Secret.database_configuration[:username], 
+                          Secret.database_configuration[:password])
+        query =  "SELECT UUID FROM file_store WHERE TYPE in ('u', 's', 'j', 'w', 'r', 't') "
+        query += "AND FILE_ID = ? AND STATUS = 4 "
+        query += "ORDER BY TYPE = 'u' DESC, TYPE = 's' DESC, TYPE = 'j' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC"
         statement = connection.prepare_statement(query)
         statement.setString(1, context['identifier'])
         results = statement.execute_query
         uuid = results.next ? results.getString('UUID') : nil
-        puts "FOUND UUID: #{uuid}"
       ensure
         connection.close if connection
         statement.close if statement
@@ -150,8 +154,7 @@ class CustomDelegate
       # filestore_record = FileStore.where(FILE_ID: context['identifier'], TYPE: %w[s j w r t], STATUS: 4).order("TYPE = 's' DESC, TYPE = 'j' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC").first
       path = nil
       # puts "The first filestore record is #{filestore_record.to_json}"
-      if not uuid.nil? #filestore_record.blank?
-        # uuid = filestore_record.UUID
+      if not uuid.nil?
         uuid =~ /(....)(....)\-(....)\-(....)\-(....)\-(....)(....)(..)../
         path = "/ifs/prod/repo/#{uuid[0..1]}/#{$1}/#{$2}/#{$3}/#{$4}/#{$5}/#{$6}/#{$7}/#{$8}/#{uuid}"
         puts path
