@@ -1,3 +1,5 @@
+require 'java'
+logger = Java::edu.illinois.library.cantaloupe.script.Logger
 ##
 # Sample Ruby delegate script containing stubs and documentation for all
 # available delegate methods. See the "Delegate Script" section of the user
@@ -153,18 +155,14 @@ class CustomDelegate
       
       # filestore_record = FileStore.where(FILE_ID: context['identifier'], TYPE: %w[s j w r t], STATUS: 4).order("TYPE = 's' DESC, TYPE = 'j' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC").first
       path = nil
-      # puts "The first filestore record is #{filestore_record.to_json}"
       if not uuid.nil?
         uuid =~ /(....)(....)\-(....)\-(....)\-(....)\-(....)(....)(..)../
         path = "/ifs/prod/repo/#{uuid[0..1]}/#{$1}/#{$2}/#{$3}/#{$4}/#{$5}/#{$6}/#{$7}/#{$8}/#{uuid}"
-        puts path
       end
     rescue => e
-      puts "Database configuration seems to be broken."
+      logger.error "Database configuration seems to be broken. #{e}", e
     end
-    
-    puts "path is #{path}"
-    path.nil? ? "/ifs/prod/repo/F4/F48E/6A6E/58BC/11DD/B760/53FF/9956/CD/F48E6A6E-58BC-11DD-B760-53FF9956CD08" : path
+    path.nil? ? "/ifs/prod/repo/FF/FF02/CD3C/93C7/11DD/A1C2/8CF9/9956/CD/FF02CD3C-93C7-11DD-A1C2-8CF99956CD08" : path
   end
 
   ##
