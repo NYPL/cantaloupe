@@ -1,5 +1,5 @@
 require 'java'
-logger = Java::edu.illinois.library.cantaloupe.script.Logger
+# @logger = Java::edu.illinois.library.cantaloupe.script.Logger
 ##
 # Sample Ruby delegate script containing stubs and documentation for all
 # available delegate methods. See the "Delegate Script" section of the user
@@ -160,7 +160,7 @@ class CustomDelegate
         path = "/ifs/prod/repo/#{uuid[0..1]}/#{$1}/#{$2}/#{$3}/#{$4}/#{$5}/#{$6}/#{$7}/#{$8}/#{uuid}"
       end
     rescue => e
-      logger.error "Database configuration seems to be broken. #{e}", e
+      # @logger.error "Database configuration seems to be broken. #{e}", e
     end
     path.nil? ? "/ifs/prod/repo/FF/FF02/CD3C/93C7/11DD/A1C2/8CF9/9956/CD/FF02CD3C-93C7-11DD-A1C2-8CF99956CD08" : path
   end
