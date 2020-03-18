@@ -139,9 +139,9 @@ class CustomDelegate
         connection = java.sql.DriverManager.get_connection(url, 
                           Secret.database_configuration[:username], 
                           Secret.database_configuration[:password])
-        query =  "SELECT UUID FROM file_store WHERE TYPE in ('u', 's', 'j', 'w', 'r', 't') "
+        query =  "SELECT UUID FROM file_store WHERE TYPE in ('s', 'j', 'w', 'r', 't') "
         query += "AND FILE_ID = ? AND STATUS = 4 "
-        query += "ORDER BY TYPE = 'u' DESC, TYPE = 's' DESC, TYPE = 'j' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC"
+        query += "ORDER BY TYPE = 's' DESC, TYPE = 'j' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC"
         statement = connection.prepare_statement(query)
         statement.setString(1, context['identifier'])
         results = statement.execute_query
