@@ -138,8 +138,8 @@ class CustomDelegate
       connection = nil, statement = nil, uuid = nil
       url = Secret.database_configuration[:url]
       begin
-        connection = java.sql.DriverManager.get_connection(url, 
-                          Secret.database_configuration[:username], 
+        connection = java.sql.DriverManager.get_connection(url,
+                          Secret.database_configuration[:username],
                           Secret.database_configuration[:password])
         query =  "SELECT UUID FROM file_store WHERE TYPE in ('s', 'j', 'u', 'w', 'r', 't') "
         query += "AND FILE_ID = ? AND STATUS = 4 "
@@ -152,7 +152,7 @@ class CustomDelegate
         connection.close if connection
         statement.close if statement
       end
-      
+
       # filestore_record = FileStore.where(FILE_ID: context['identifier'], TYPE: %w[s j w r t], STATUS: 4).order("TYPE = 's' DESC, TYPE = 'j' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC").first
       path = nil
       if not uuid.nil?
