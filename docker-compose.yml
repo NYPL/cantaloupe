@@ -6,5 +6,7 @@ services:
       dockerfile: Dockerfile
     env_file:
       - ./.env
+    # volumes:
+    #   - './cantaloupe:/cantaloupe'
     ports:
       - '8182:8182'
