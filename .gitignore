@@ -1,10 +1,6 @@
 .env
-/cantaloupe-4.0.2/secrets.rb
 /database-data/mysql/*
 !/database-data/mysql/.keep
-/cantaloupe-4.0.2/cache/*
-!/cantaloupe-4.0.2/cache/.keep
 cache/
 log/
-cantaloupe-*
 secrets.rb

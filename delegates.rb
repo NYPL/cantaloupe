@@ -77,11 +77,12 @@ class CustomDelegate
   # and not try to check for it.
   #
   # @param options [Hash] Empty hash.
-  # @return [Boolean] Whether the request is authorized.
+  # @return [Boolean,Hash<String,Object>] See above.
   #
-  def authorized?(options = {})
+  def authorize(options = {})
     true
   end
+
 
   ##
   # Used to add additional keys to an information JSON response. See the
