@@ -1,0 +1,13 @@
+[Unit]
+Description=Cantaloupe
+[Service]
+WorkingDirectory=/var/www/images.nypl.org
+ExecStart=/usr/bin/java -Dcantaloupe.config=cantaloupe.properties -Xmx2g -classpath /var/www/images.nypl.org/mysql-connector-java-5.1.44-bin.jar:/var/www/images.nypl.org/cantaloupe-4.0.2.war edu.illinois.library.cantaloupe.StandaloneEntry
+User=nobody
+SuccessExitStatus=143
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

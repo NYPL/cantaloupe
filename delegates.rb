@@ -1,3 +1,4 @@
+require 'java'
 ##
 # Sample Ruby delegate script containing stubs and documentation for all
 # available delegate methods. See the "Delegate Script" section of the user
@@ -12,8 +13,10 @@
 # versions. Likewise, earlier versions of the script are not compatible with
 # Cantaloupe 4.
 #
-class CustomDelegate
+require './secrets'
 
+class CustomDelegate
+  @logger = Java::edu.illinois.library.cantaloupe.script.Logger
   ##
   # Attribute for the request context, which is a hash containing information
   # about the current request.
@@ -130,6 +133,39 @@ class CustomDelegate
   #                      given identifier, or nil if not found.
   #
   def filesystemsource_pathname(options = {})
+      logger = Java::edu.illinois.library.cantaloupe.script.Logger
+      Java::com.mysql.jdbc.Driver
+        url = Secret.database_configuration[:url]
+        username = Secret.database_configuration[:username]
+        password = Secret.database_configuration[:password]
+        connection = java.sql.DriverManager.get_connection(url, username, password)
+        statement = nil
+        uuid = nil
+      begin
+        query =  "SELECT UUID FROM file_store WHERE TYPE in ('s', 'j', 'u', 'w', 'r', 't') "
+        query += "AND FILE_ID = ? AND STATUS = 4 "
+        query += "ORDER BY TYPE = 's' DESC, TYPE = 'j' DESC, TYPE = 'u' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC"
+        statement = connection.prepare_statement(query)
+        statement.setString(1, context['identifier'])
+        results = statement.execute_query
+        if results.next
+          uuid = results.getString('UUID')
+        else
+          logger.debug('NO RESULTS...')
+        end
+        #uuid = results.next ? results.getString('UUID') : nil
+      ensure
+        connection.close if connection
+        statement.close if statement
+      end
+      
+      # filestore_record = FileStore.where(FILE_ID: context['identifier'], TYPE: %w[s j w r t], STATUS: 4).order("TYPE = 's' DESC, TYPE = 'j' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC").first
+      path = nil
+      if not uuid.nil?
+        uuid =~ /(....)(....)\-(....)\-(....)\-(....)\-(....)(....)(..)../
+        path = "/ifs/prod/repo/#{uuid[0..1]}/#{$1}/#{$2}/#{$3}/#{$4}/#{$5}/#{$6}/#{$7}/#{$8}/#{uuid}"
+      end
+    path.nil? ? "/ifs/prod/repo/FF/FF02/CD3C/93C7/11DD/A1C2/8CF9/9956/CD/FF02CD3C-93C7-11DD-A1C2-8CF99956CD08" : path
   end
 
   ##
@@ -215,3 +251,4 @@ class CustomDelegate
   end
 
 end
+
