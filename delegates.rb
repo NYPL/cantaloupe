@@ -143,9 +143,9 @@ class CustomDelegate
         statement = nil
         uuid = nil
       begin
-        query =  "SELECT UUID FROM file_store WHERE TYPE in ('s', 'j', 'u', 'w', 'r', 't') "
+        query =  "SELECT UUID FROM file_store WHERE TYPE in ('j', 's', 'u', 'w', 'r', 't') "
         query += "AND FILE_ID = ? AND STATUS = 4 "
-        query += "ORDER BY TYPE = 's' DESC, TYPE = 'j' DESC, TYPE = 'u' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC"
+        query += "ORDER BY TYPE = 'j' DESC, TYPE = 's' DESC, TYPE = 'u' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC"
         statement = connection.prepare_statement(query)
         statement.setString(1, context['identifier'])
         results = statement.execute_query
@@ -154,13 +154,11 @@ class CustomDelegate
         else
           logger.debug('NO RESULTS...')
         end
-        #uuid = results.next ? results.getString('UUID') : nil
       ensure
         connection.close if connection
         statement.close if statement
       end
       
-      # filestore_record = FileStore.where(FILE_ID: context['identifier'], TYPE: %w[s j w r t], STATUS: 4).order("TYPE = 's' DESC, TYPE = 'j' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC").first
       path = nil
       if not uuid.nil?
         uuid =~ /(....)(....)\-(....)\-(....)\-(....)\-(....)(....)(..)../
