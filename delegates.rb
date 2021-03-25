@@ -80,7 +80,24 @@ class CustomDelegate
   # @return [Boolean,Hash<String,Object>] See above.
   #
   def authorize(options = {})
-    true
+    logger = Java::edu.illinois.library.cantaloupe.script.Logger
+   
+    u_file_access = ['10.128.99.55','10.128.1.167','10.224.6.10','10.128.99.167','10.128.98.50','10.224.6.26','10.224.6.35','172.16.1.94', '66.234.38.35']
+    #'65.88.88.115'
+    remote_ip = context['request_headers']['X-Forwarded-For']
+    logger.debug("IP ADDRESS: #{remote_ip}")
+    logger.debug("REQUEST URI: #{context['request_uri']}")
+    if context['request_uri'] =~ /ufile=true/ 
+      logger.debug("UFILE ACCESS")
+      if u_file_access.include?(remote_ip) || remote_ip =~ /^63.147.60./
+        true
+      else
+        false
+      end
+    else
+      logger.debug("NON_UFILE ACCESS")
+      true 
+    end 
   end
 
 
