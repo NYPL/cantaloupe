@@ -1,0 +1,3 @@
+[submodule "cantaloupe"]
+	path = cantaloupe
+	url = https://github.com/cantaloupe-project/cantaloupe
