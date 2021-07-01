@@ -44,7 +44,7 @@ function mapImageServerToIIIF(request, response) {
     crop = "full"
   }
 ​
-  var imageUrl = "http://172.16.1.195:8182/iiif/2/"+ identitifier + "/" + crop + "/" + urlSegment +"/0/default.jpg"
+  var imageUrl = "http://0.0.0.0:8182/iiif/2/"+ identitifier + "/" + crop + "/" + urlSegment +"/0/default.jpg"
   
   if (paramsHash['t'] == 'u' || paramsHash['t'] == 'j' || paramsHash['t'] == 's') {
     request.headersOut['X-Ufile'] = 'true';
