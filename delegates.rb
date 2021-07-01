@@ -168,6 +168,7 @@ class CustomDelegate
         results = statement.execute_query
         if results.next
           uuid = results.getString('UUID')
+          logger.debug("UUID: #{uuid}")
         else
           logger.debug('NO RESULTS...')
         end
