@@ -3,4 +3,3 @@
 !/database-data/mysql/.keep
 cache/
 log/
-secrets.rb
