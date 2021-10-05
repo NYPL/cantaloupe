@@ -14,6 +14,8 @@ require 'java'
 # Cantaloupe 4.
 #
 require './secrets'
+require 'net/http'
+require 'json'
 
 class CustomDelegate
   @logger = Java::edu.illinois.library.cantaloupe.script.Logger
@@ -87,7 +89,9 @@ class CustomDelegate
     remote_ip = context['request_headers']['X-Forwarded-For']
     logger.debug("IP ADDRESS: #{remote_ip}")
     logger.debug("REQUEST URI: #{context['request_uri']}")
-    if context['request_uri'] =~ /ufile=true/ 
+    # set type to variable since it will be referenced more frequently in future work
+    type = context['request_uri'].split('=')[1]
+    if type == "u"
       logger.debug("UFILE ACCESS")
       if u_file_access.include?(remote_ip) || remote_ip =~ /^63.147.60./
         true
@@ -96,10 +100,69 @@ class CustomDelegate
       end
     else
       logger.debug("NON_UFILE ACCESS")
-      true 
-    end 
+      is_not_restricted?(image_id)
+      # true 
+    end
   end
 
+  #if an image is not restricted, return true (user can access)
+  def is_not_restricted?(image_id)
+    rights = get_rights(image_id)
+    #rough draft of iterpretatio nof rights statement for restricted images 
+    if rights.include?("Copyright Issues Present") && !rights.to_s.include?("Can be displayed on NYPL website")
+      false
+    else
+      true
+    end
+
+  end
+
+  def get_rights(image_id)
+    # for testing restricted uuid
+    # uuid = '943f6f8f-f5cf-e0b8-e040-e00a18063cff'
+    # for testing restricted image_id
+    # image_id: 1992268
+    # http://api.repo.nypl.org/api/v2/captures/rights/1992268
+
+    path = "captures/rights/#{image_id}"
+    
+    fetch_path path
+  end
+
+  def fetch(url, headers)
+
+    request = Net::HTTP::Get.new(url)
+    request['Authorization'] = headers['Authorization'] unless headers['Authorization'].nil?
+
+    begin
+      uri = URI(url)
+      response = Net::HTTP.start(uri.host, uri.port) do |http|
+        http.read_timeout = 60 # Default is 60 seconds
+        http.request(request)
+      end
+      response = response.body
+    rescue Net::HTTPRequestTimeOut => e
+      puts "HttpApiClient error: HTTPRequestTimeOut: #{e.message}"
+    rescue StandardError
+      puts "HttpApiClient error: Unknown error: #{e.inspect}"
+    end
+
+    puts "got response: #{response}"
+    
+    response
+  end
+
+  def fetch_path(path)
+    fetch api_url(path), headers
+  end
+
+  def headers
+    headers = { 'Authorization' => "Token token=#{ENV['AUTH_TOKEN']}" }
+  end
+
+  def api_url(path)
+    "#{ENV['API_URL']}/api/v2/#{path}"
+  end
 
   ##
   # Used to add additional keys to an information JSON response. See the

@@ -38,10 +38,11 @@ function mapImageServerToIIIF(request, response) {
   }
   var imageUrl = "http://0.0.0.0:8182/iiif/2/"+ identitifier + "/" + crop + "/" + urlSegment +"/0/default.jpg"
   
+  //  When DR-1470 is complete, delegates.rb will need to know what derivative type is being requested.
   if (paramsHash['t'] == 'u' || paramsHash['t'] == 'j' || paramsHash['t'] == 's') {
     request.headersOut['X-Ufile'] = 'true';
-    return imageUrl + "?ufile=true";
+    return `${imageUrl}?type=u`;
   }  else {
-    return imageUrl;
+    return `${imageUrl}?type=${paramsHash['t']}`;
   }
 }
