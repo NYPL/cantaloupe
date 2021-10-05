@@ -15,7 +15,6 @@ require 'java'
 #
 require './secrets'
 require 'net/http'
-require 'json'
 
 class CustomDelegate
   @logger = Java::edu.illinois.library.cantaloupe.script.Logger
