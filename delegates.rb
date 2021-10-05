@@ -99,7 +99,7 @@ class CustomDelegate
       end
     else
       logger.debug("NON_UFILE ACCESS")
-      is_not_restricted?(image_id)
+      is_not_restricted?(context['identifier'])
       # true 
     end
   end
