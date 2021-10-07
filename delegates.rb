@@ -86,6 +86,7 @@ class CustomDelegate
     u_file_access = ['10.128.99.55','10.128.1.167','10.224.6.10','10.128.99.167','10.128.98.50','10.224.6.26','10.224.6.35','172.16.1.94', '66.234.38.35']
     #'65.88.88.115'
     remote_ip = context['request_headers']['X-Forwarded-For']
+    logger.debug("CONTEXT HASH: #{context}")
     logger.debug("IP ADDRESS: #{remote_ip}")
     logger.debug("REQUEST URI: #{context['request_uri']}")
     # set type to variable since it will be referenced more frequently in future work
@@ -99,8 +100,17 @@ class CustomDelegate
       end
     else
       logger.debug("NON_UFILE ACCESS")
-      is_not_restricted?(context['identifier'])
-      # true 
+      api_response = returns_rights?(context['identifier'])
+    end
+  end
+
+  def returns_rights?(image_id)
+    rights = get_rights(image_id)
+    #rough draft of iterpretatio nof rights statement for restricted images 
+    if rights.include?("nyplRights")
+      true
+    else
+      false
     end
   end
 
@@ -113,7 +123,6 @@ class CustomDelegate
     else
       true
     end
-
   end
 
   def get_rights(image_id)
@@ -129,9 +138,9 @@ class CustomDelegate
   end
 
   def fetch(url, headers)
-
     request = Net::HTTP::Get.new(url)
     request['Authorization'] = headers['Authorization'] unless headers['Authorization'].nil?
+    logger.debug("REQUEST IS: #{request}")
 
     begin
       uri = URI(url)
@@ -141,12 +150,12 @@ class CustomDelegate
       end
       response = response.body
     rescue Net::HTTPRequestTimeOut => e
-      puts "HttpApiClient error: HTTPRequestTimeOut: #{e.message}"
+      logger.debug("HttpApiClient error: HTTPRequestTimeOut: #{e.message}")
     rescue StandardError
-      puts "HttpApiClient error: Unknown error: #{e.inspect}"
+      logger.debug("HttpApiClient error: Unknown error: #{e.inspect}")
     end
 
-    puts "got response: #{response}"
+    logger.debug("got response: #{response}")
     
     response
   end
