@@ -14,6 +14,7 @@ require 'java'
 # Cantaloupe 4.
 #
 require './secrets'
+require 'net/http'
 
 class CustomDelegate
   @logger = Java::edu.illinois.library.cantaloupe.script.Logger
@@ -85,9 +86,12 @@ class CustomDelegate
     u_file_access = ['10.128.99.55','10.128.1.167','10.224.6.10','10.128.99.167','10.128.98.50','10.224.6.26','10.224.6.35','172.16.1.94', '66.234.38.35']
     #'65.88.88.115'
     remote_ip = context['request_headers']['X-Forwarded-For']
+    logger.debug("CONTEXT HASH: #{context}")
     logger.debug("IP ADDRESS: #{remote_ip}")
     logger.debug("REQUEST URI: #{context['request_uri']}")
-    if context['request_uri'] =~ /ufile=true/ 
+    # set type to variable since it will be referenced more frequently in future work
+    type = context['request_uri'].split('=')[1]
+    if type == "u"
       logger.debug("UFILE ACCESS")
       if u_file_access.include?(remote_ip) || remote_ip =~ /^63.147.60./
         true
@@ -96,10 +100,77 @@ class CustomDelegate
       end
     else
       logger.debug("NON_UFILE ACCESS")
-      true 
-    end 
+      api_response = returns_rights?(context['identifier'])
+    end
   end
 
+  def returns_rights?(image_id)
+    rights = get_rights(image_id)
+    #rough draft of iterpretatio nof rights statement for restricted images 
+    if rights.include?("nyplRights")
+      true
+    else
+      false
+    end
+  end
+
+  #if an image is not restricted, return true (user can access)
+  def is_not_restricted?(image_id)
+    rights = get_rights(image_id)
+    #rough draft of iterpretatio nof rights statement for restricted images 
+    if rights.include?("Copyright Issues Present") && !rights.to_s.include?("Can be displayed on NYPL website")
+      false
+    else
+      true
+    end
+  end
+
+  def get_rights(image_id)
+    # for testing restricted uuid
+    # uuid = '943f6f8f-f5cf-e0b8-e040-e00a18063cff'
+    # for testing restricted image_id
+    # image_id: 1992268
+    # http://api.repo.nypl.org/api/v2/captures/rights/1992268
+
+    path = "captures/rights/#{image_id}"
+    
+    fetch_path path
+  end
+
+  def fetch(url, headers)
+    request = Net::HTTP::Get.new(url)
+    request['Authorization'] = headers['Authorization'] unless headers['Authorization'].nil?
+    logger.debug("REQUEST IS: #{request}")
+
+    begin
+      uri = URI(url)
+      response = Net::HTTP.start(uri.host, uri.port) do |http|
+        http.read_timeout = 60 # Default is 60 seconds
+        http.request(request)
+      end
+      response = response.body
+    rescue Net::HTTPRequestTimeOut => e
+      logger.debug("HttpApiClient error: HTTPRequestTimeOut: #{e.message}")
+    rescue StandardError
+      logger.debug("HttpApiClient error: Unknown error: #{e.inspect}")
+    end
+
+    logger.debug("got response: #{response}")
+    
+    response
+  end
+
+  def fetch_path(path)
+    fetch api_url(path), headers
+  end
+
+  def headers
+    headers = { 'Authorization' => "Token token=#{ENV['AUTH_TOKEN']}" }
+  end
+
+  def api_url(path)
+    "#{ENV['API_URL']}/api/v2/#{path}"
+  end
 
   ##
   # Used to add additional keys to an information JSON response. See the
