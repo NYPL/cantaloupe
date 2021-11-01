@@ -138,6 +138,8 @@ class CustomDelegate
   end
 
   def fetch(url, headers)
+    logger = Java::edu.illinois.library.cantaloupe.script.Logger
+
     request = Net::HTTP::Get.new(url)
     request['Authorization'] = headers['Authorization'] unless headers['Authorization'].nil?
     logger.debug("REQUEST IS: #{request}")
