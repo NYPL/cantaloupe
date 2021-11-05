@@ -106,7 +106,7 @@ class CustomDelegate
 
   def returns_rights?(image_id)
     rights = get_rights(image_id)
-    #rough draft of iterpretatio nof rights statement for restricted images 
+    # rough draft of iterpretation of rights statement for restricted images 
     if rights.include?("nyplRights")
       true
     else
@@ -114,7 +114,7 @@ class CustomDelegate
     end
   end
 
-  #if an image is not restricted, return true (user can access)
+  # if an image is not restricted, return true (user can access)
   def is_not_restricted?(image_id)
     rights = get_rights(image_id)
     #rough draft of iterpretatio nof rights statement for restricted images 
