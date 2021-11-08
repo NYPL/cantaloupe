@@ -117,7 +117,7 @@ class CustomDelegate
   # if an image is not restricted, return true (user can access)
   def is_not_restricted?(image_id)
     rights = get_rights(image_id)
-    #rough draft of iterpretatio nof rights statement for restricted images 
+    # rough draft of iterpretation of rights statement for restricted images 
     if rights.include?("Copyright Issues Present") && !rights.to_s.include?("Can be displayed on NYPL website")
       false
     else
