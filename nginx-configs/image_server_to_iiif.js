@@ -11,14 +11,18 @@ function mapImageServerToIIIF(request, response) {
   // turn query string to hash
   var requestVars = request.variables['query_string'];
   var arrayOfKeyValues;
-  request.log("request vars: " + requestVars);
+  console.log("request vars: ", requestVars);
+
   if (requestVars) {
   	arrayOfKeyValues = requestVars.split('&');
   }
+  console.log("arrayOfKeyValues: ", arrayOfKeyValues);
   var paramsHash = {};
   // Turns ['a=1', 'b=2', 'c=3'] and stores it into paramsHash as {"a": "1", "b": "2", "c": "3"}
-  for (var i = 0; i < arrayOfKeyValues.length; i++) {
-    paramsHash[arrayOfKeyValues[i].split('=')[0]] = arrayOfKeyValues[i].split('=')[1];
+  if (typeof arrayOfKeyValues !== 'undefined') {
+    for (var i = 0; i < arrayOfKeyValues.length; i++) {
+      paramsHash[arrayOfKeyValues[i].split('=')[0]] = arrayOfKeyValues[i].split('=')[1];
+    }
   }
   // Dimension Stuff
   var imageType = paramsHash['t'].toLowerCase();
