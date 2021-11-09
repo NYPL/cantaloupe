@@ -91,7 +91,8 @@ class CustomDelegate
     logger.debug("REQUEST URI: #{context['request_uri']}")
     # set type to variable since it will be referenced more frequently in future work
     type = context['request_uri'].split('=')[1]
-    if type == "u"
+    logger.debug("type: #{type}")
+    if context['request_uri'] =~ /ufile=true/
       logger.debug("UFILE ACCESS")
       if u_file_access.include?(remote_ip) || remote_ip =~ /^63.147.60./
         true
@@ -101,6 +102,7 @@ class CustomDelegate
     else
       logger.debug("NON_UFILE ACCESS")
       api_response = returns_rights?(context['identifier'])
+      true
     end
   end
 
