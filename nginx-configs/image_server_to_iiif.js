@@ -19,11 +19,10 @@ function mapImageServerToIIIF(request, response) {
   console.log("arrayOfKeyValues: ", arrayOfKeyValues);
   var paramsHash = {};
   // Turns ['a=1', 'b=2', 'c=3'] and stores it into paramsHash as {"a": "1", "b": "2", "c": "3"}
-  if (typeof arrayOfKeyValues !== 'undefined') {
-    for (var i = 0; i < arrayOfKeyValues.length; i++) {
-      paramsHash[arrayOfKeyValues[i].split('=')[0]] = arrayOfKeyValues[i].split('=')[1];
-    }
+  for (var i = 0; i < arrayOfKeyValues.length; i++) {
+    paramsHash[arrayOfKeyValues[i].split('=')[0]] = arrayOfKeyValues[i].split('=')[1];
   }
+  
   // Dimension Stuff
   var imageType = paramsHash['t'].toLowerCase();
   var dimension = typeToDimensionMapping[imageType];
@@ -45,8 +44,8 @@ function mapImageServerToIIIF(request, response) {
   //  When DR-1470 is complete, delegates.rb will need to know what derivative type is being requested.
   if (paramsHash['t'] == 'u' || paramsHash['t'] == 'j' || paramsHash['t'] == 's') {
     request.headersOut['X-Ufile'] = 'true';
-    return `${imageUrl}?type=u`;
+    return imageUrl + "?ufile=true";
   }  else {
-    return `${imageUrl}?type=${paramsHash['t']}`;
+    return imageUrl + "?type=" + paramsHash['t'];
   }
 }
