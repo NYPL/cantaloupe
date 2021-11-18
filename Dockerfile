@@ -9,11 +9,11 @@ RUN mkdir /usr/src/cantaloupe
 WORKDIR /usr/src/cantaloupe
 
 # Bundle gems at build time
-COPY ./cantaloupe-4.0.2 /usr/src/cantaloupe
-RUN bundle platform
-RUN bundle install
+COPY ./cantaloupe /usr/src/cantaloupe
+# RUN bundle platform
+# RUN bundle install
 
-CMD java -Dcantaloupe.config=./cantaloupe.properties -Xmx2g -jar cantaloupe-4.0.2.war
+CMD java -Dcantaloupe.config=./cantaloupe.properties -Xmx2g -jar cantaloupe.war
 
 FROM production AS development
 
