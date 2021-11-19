@@ -1,14 +1,10 @@
 version: '3.4'
 services:
   cantaloupe:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: development
+    build: .
     env_file:
       - ./.env
     volumes:
-      - './cantaloupe:/usr/src/cantaloupe'
-      - './cantaloupe/cache:/usr/src/cantaloupe/cache'
+      - './cache:/usr/src/cantaloupe/cache'
     ports:
       - '8182:8182'

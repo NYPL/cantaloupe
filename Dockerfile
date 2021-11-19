@@ -1,21 +1,50 @@
-FROM jruby:9.2 as production
+FROM openjdk:11
 
-# Default Cantaloupe port
-EXPOSE 8182
+# Install various dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        curl \
+        graphicsmagick \
+        imagemagick \
+		ffmpeg \
+		maven \
+		libopenjp2-tools \
+		redis-server \
+  && rm -rf /var/lib/apt/lists/*
 
-# throw errors if Gemfile has been modified since Gemfile.lock
-# RUN bundle config --global frozen 1
-RUN mkdir /usr/src/cantaloupe
-WORKDIR /usr/src/cantaloupe
+# Install TurboJpegProcessor dependencies
+RUN mkdir -p /opt/libjpeg-turbo/lib
+COPY cantaloupe/docker/test/image_files/libjpeg-turbo/lib64 /opt/libjpeg-turbo/lib
 
-# Bundle gems at build time
-COPY ./cantaloupe /usr/src/cantaloupe
-# RUN bundle platform
-# RUN bundle install
+# Install KakaduNativeProcessor & KakaduDemoProcessor dependencies
+COPY cantaloupe/dist/deps/Linux-x86-64/bin/* /usr/bin/
+COPY cantaloupe/dist/deps/Linux-x86-64/lib/* /usr/lib/
 
-CMD java -Dcantaloupe.config=./cantaloupe.properties -Xmx2g -jar cantaloupe.war
+# A non-root user is needed for some FilesystemSourceTest tests to work.
+ARG user=cantaloupe
+ARG home=/home/$user
+RUN adduser --home $home $user
+RUN chown -R $user $home
+USER $user
+WORKDIR $home
 
-FROM production AS development
+# Install application dependencies
+COPY ./cantaloupe/pom.xml pom.xml
+RUN mvn dependency:resolve
 
-# In development mode it will be mounted (thanks to docker-compose.yml)
-run rm -rf /usr/src/cantaloupe/*
+# Install Minio S3 server for S3SourceTest and S3CacheTest
+ARG s3=$home/s3
+RUN mkdir -p $s3/.minio.sys/config $s3/test.cantaloupe.library.illinois.edu
+COPY cantaloupe/docker/test/image_files/minio_config.json $s3/.minio.sys/config/config.json
+RUN curl -O https://dl.minio.io/server/minio/release/linux-amd64/minio
+RUN chmod +x minio
+
+# Copy config
+COPY --chown=cantaloupe cantaloupe.properties cantaloupe.properties
+
+# Copy cantaloupe source code
+COPY --chown=cantaloupe ./cantaloupe/src src
+
+# Compile Cantaloupe
+RUN mvn clean compile
+
+CMD mvn exec:java -Dcantaloupe.config=./cantaloupe.properties
