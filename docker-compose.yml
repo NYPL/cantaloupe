@@ -5,6 +5,7 @@ services:
     env_file:
       - ./.env
     volumes:
+      - './images:/var/www/images.nypl.org'
       - './cache:/usr/src/cantaloupe/cache'
     ports:
       - '8182:8182'
