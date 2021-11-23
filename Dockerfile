@@ -38,13 +38,16 @@ COPY cantaloupe/docker/test/image_files/minio_config.json $s3/.minio.sys/config/
 RUN curl -O https://dl.minio.io/server/minio/release/linux-amd64/minio
 RUN chmod +x minio
 
-# Copy config
-COPY --chown=cantaloupe cantaloupe.properties cantaloupe.properties
-
-# Copy cantaloupe source code
+# Copy Cantaloupe source
 COPY --chown=cantaloupe ./cantaloupe/src src
 
-# Compile Cantaloupe
+# Copy config
+COPY --chown=cantaloupe cantaloupe.properties .
+COPY --chown=cantaloupe delegates.rb .
+COPY --chown=cantaloupe secrets.rb .
+
+# Compile
 RUN mvn clean compile
 
+# Run
 CMD mvn exec:java -Dcantaloupe.config=./cantaloupe.properties
