@@ -54,4 +54,3 @@ RUN mvn clean compile
 
 # Run
 CMD mvn exec:java -Dcantaloupe.config=./cantaloupe.properties
-#CMD mvn exec:java -Dcantaloupe.config=./cantaloupe.properties -classpath .
