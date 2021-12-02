@@ -41,6 +41,9 @@ RUN chmod +x minio
 # Copy Cantaloupe source
 COPY --chown=cantaloupe ./cantaloupe/src src
 
+# Copy JDBC driver
+COPY --chown=cantaloupe mysql-connector-java-5.1.44-bin.jar .
+
 # Copy config
 COPY --chown=cantaloupe cantaloupe.properties .
 COPY --chown=cantaloupe delegates.rb .
