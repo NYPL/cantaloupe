@@ -14,7 +14,7 @@ require 'java'
 # Cantaloupe 4.
 #
 require './secrets'
-require 'net/http'
+# require 'net/http'
 
 class CustomDelegate
   @logger = Java::edu.illinois.library.cantaloupe.script.Logger
@@ -91,7 +91,8 @@ class CustomDelegate
     logger.debug("REQUEST URI: #{context['request_uri']}")
     # set type to variable since it will be referenced more frequently in future work
     type = context['request_uri'].split('=')[1]
-    if type == "u"
+    logger.debug("type: #{type}")
+    if context['request_uri'] =~ /ufile=true/
       logger.debug("UFILE ACCESS")
       if u_file_access.include?(remote_ip) || remote_ip =~ /^63.147.60./
         true
@@ -100,13 +101,14 @@ class CustomDelegate
       end
     else
       logger.debug("NON_UFILE ACCESS")
-      api_response = returns_rights?(context['identifier'])
+      # api_response = returns_rights?(context['identifier'])
+      true
     end
   end
 
   def returns_rights?(image_id)
     rights = get_rights(image_id)
-    #rough draft of iterpretatio nof rights statement for restricted images 
+    # rough draft of iterpretation of rights statement for restricted images 
     if rights.include?("nyplRights")
       true
     else
@@ -114,10 +116,10 @@ class CustomDelegate
     end
   end
 
-  #if an image is not restricted, return true (user can access)
+  # if an image is not restricted, return true (user can access)
   def is_not_restricted?(image_id)
     rights = get_rights(image_id)
-    #rough draft of iterpretatio nof rights statement for restricted images 
+    # rough draft of iterpretation of rights statement for restricted images 
     if rights.include?("Copyright Issues Present") && !rights.to_s.include?("Can be displayed on NYPL website")
       false
     else
@@ -138,6 +140,8 @@ class CustomDelegate
   end
 
   def fetch(url, headers)
+    logger = Java::edu.illinois.library.cantaloupe.script.Logger
+
     request = Net::HTTP::Get.new(url)
     request['Authorization'] = headers['Authorization'] unless headers['Authorization'].nil?
     logger.debug("REQUEST IS: #{request}")
