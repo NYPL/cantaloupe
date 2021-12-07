@@ -227,7 +227,6 @@ class CustomDelegate
   #
   def filesystemsource_pathname(options = {})
       logger = Java::edu.illinois.library.cantaloupe.script.Logger
-      Java::com.mysql.jdbc.Driver
         url = Secret.database_configuration[:url]
         username = Secret.database_configuration[:username]
         password = Secret.database_configuration[:password]
