@@ -14,7 +14,7 @@ require 'java'
 # Cantaloupe 4.
 #
 require './secrets'
-require 'net/http'
+# require 'net/http'
 
 class CustomDelegate
   @logger = Java::edu.illinois.library.cantaloupe.script.Logger
@@ -101,7 +101,7 @@ class CustomDelegate
       end
     else
       logger.debug("NON_UFILE ACCESS")
-      api_response = returns_rights?(context['identifier'])
+      # api_response = returns_rights?(context['identifier'])
       true
     end
   end
