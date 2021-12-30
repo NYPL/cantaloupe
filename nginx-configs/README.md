@@ -15,6 +15,8 @@ To add our custom IIIF configuration wrapper, I do
 
 `$ mkdir /usr/local/etc/nginx/conf.d`
 `$ cp image_server_to_iiif.js /usr/local/etc/nginx/conf.d/image_server_to_iiif.js`
+`$ cp images_proxy_local.conf /usr/local/etc/nginx/conf.d/images_proxy_local.conf`
+`$ cp nginx_conf_local.conf /usr/local/etc/nginx/nginx.conf`
 `$ sudo /usr/local/bin/nginx -s stop`
 `$ sudo nginx`
 

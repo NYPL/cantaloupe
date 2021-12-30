@@ -169,11 +169,11 @@ class CustomDelegate
   end
 
   def headers
-    headers = { 'Authorization' => "Token token=#{ENV['AUTH_TOKEN']}" }
+    headers = { 'Authorization' => "Token token=#{Secret.api_configuration[:auth_token]}" }
   end
 
   def api_url(path)
-    "#{ENV['API_URL']}/api/v2/#{path}"
+    "#{Secret.api_configuration[:api_url]}/api/v2/#{path}"
   end
 
   ##
@@ -226,37 +226,42 @@ class CustomDelegate
   #                      given identifier, or nil if not found.
   #
   def filesystemsource_pathname(options = {})
-      logger = Java::edu.illinois.library.cantaloupe.script.Logger
-        url = Secret.database_configuration[:url]
-        username = Secret.database_configuration[:username]
-        password = Secret.database_configuration[:password]
-        connection = java.sql.DriverManager.get_connection(url, username, password)
-        statement = nil
-        uuid = nil
-      begin
-        query =  "SELECT UUID FROM file_store WHERE TYPE in ('j', 's', 'u', 'w', 'r', 't') "
-        query += "AND FILE_ID = ? AND STATUS = 4 "
-        query += "ORDER BY TYPE = 'j' DESC, TYPE = 's' DESC, TYPE = 'u' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC"
-        statement = connection.prepare_statement(query)
-        statement.setString(1, context['identifier'])
-        results = statement.execute_query
-        if results.next
-          uuid = results.getString('UUID')
-          logger.debug("UUID: #{uuid}")
-        else
-          logger.debug('NO RESULTS...')
-        end
-      ensure
-        connection.close if connection
-        statement.close if statement
+    logger = Java::edu.illinois.library.cantaloupe.script.Logger
+    url = Secret.database_configuration[:url]
+    username = Secret.database_configuration[:username]
+    password = Secret.database_configuration[:password]
+    default_image_path = Secret.storage_configuration[:default_image_path]
+    connection = java.sql.DriverManager.get_connection(url, username, password)
+    statement = nil
+    uuid = nil
+    begin
+      query =  "SELECT UUID FROM file_store WHERE TYPE in ('j', 's', 'u', 'w', 'r', 't') "
+      query += "AND FILE_ID = ? AND STATUS = 4 "
+      query += "ORDER BY TYPE = 'j' DESC, TYPE = 's' DESC, TYPE = 'u' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC"
+      statement = connection.prepare_statement(query)
+      statement.setString(1, context['identifier'])
+      results = statement.execute_query
+      if results.next
+        uuid = results.getString('UUID')
+        logger.debug("UUID: #{uuid}")
+      else
+        logger.debug('NO RESULTS...')
       end
-      
-      path = nil
-      if not uuid.nil?
-        uuid =~ /(....)(....)\-(....)\-(....)\-(....)\-(....)(....)(..)../
-        path = "/ifs/prod/repo/#{uuid[0..1]}/#{$1}/#{$2}/#{$3}/#{$4}/#{$5}/#{$6}/#{$7}/#{$8}/#{uuid}"
-      end
-    path.nil? ? "/ifs/prod/repo/FF/FF02/CD3C/93C7/11DD/A1C2/8CF9/9956/CD/FF02CD3C-93C7-11DD-A1C2-8CF99956CD08" : path
+    ensure
+      connection.close if connection
+      statement.close if statement
+    end
+    
+    path = nil
+    if not uuid.nil?
+      uuid =~ /(....)(....)\-(....)\-(....)\-(....)\-(....)(....)(..)../
+      path = "/ifs/prod/repo/#{uuid[0..1]}/#{$1}/#{$2}/#{$3}/#{$4}/#{$5}/#{$6}/#{$7}/#{$8}/#{uuid}"
+    end
+    if path.nil? 
+      default_image_path != nil ? default_image_path : "/ifs/prod/repo/FF/FF02/CD3C/93C7/11DD/A1C2/8CF9/9956/CD/FF02CD3C-93C7-11DD-A1C2-8CF99956CD08"
+    else
+      path
+    end
   end
 
   ##
@@ -304,7 +309,6 @@ class CustomDelegate
   # Stephen Schor: Setting bucket name here allows us to configure it as an environment variable
   # as opposed to setting it in the .properties file, which can't read environment variables.
   def s3source_object_info(options = {})
-    {'bucket' => ENV['SOURCE_S3_BUCKET_NAME'], 'key' => context['identifier']}
   end
 
   ##

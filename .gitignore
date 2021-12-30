@@ -1,5 +1,6 @@
 .env
 .DS_Store
+cantaloupe-local.properties
 /database-data/mysql/*
 !/database-data/mysql/.keep
 cache/
