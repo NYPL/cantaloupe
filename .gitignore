@@ -6,3 +6,5 @@ cantaloupe-local.properties
 cache/
 log/
 images/
+tmp/
+local-imagecache/
