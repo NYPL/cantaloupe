@@ -8,3 +8,4 @@ log/
 images/
 tmp/
 local-imagecache/
+secrets.rb

@@ -7,12 +7,13 @@ It is configured to read source images from S3.
 
 We've temporarily stopped using Docker for local setup. In the meantime, the following more complicated steps should work to get you up and running locally. 
 
-1.  Clone this git repository.
-2.  `cp cantaloupe-local.properties.sample cantaloupe-local.properties`
-3.  In this file, edit the path for `FilesystemCache.pathname` to wherever you want your local cache to live. 
-4.  Might need to also edit the path for `GraphicsMagickProcessor.path_to_binaries` to wherever you find your GM bin. (Mine is at `/usr/local/Cellar/graphicsmagick/1.3.37/bin` right now.)
+1. Clone this git repository.
+2. `cp cantaloupe-local.properties.sample cantaloupe-local.properties`
+3. In this file, edit the path for `FilesystemCache.pathname` to wherever you want your local cache to live. 
+4. Might need to also edit the path for `GraphicsMagickProcessor.path_to_binaries` to wherever you find your GM bin. (Mine is at `/usr/local/Cellar/graphicsmagick/1.3.37/bin` right now.)
 5. If not already created, create a local mysql database and import the small sql file found `db/filestore-sample-db.sql`. Make note of user / password and database host name for use in the next step. 
-6. In the `secrets.rb` file, comment out the development set of configs and un-comment-out the set for local development. Edit the values as appropriate. 
+6. `cp secrets.rb.sample secrets.rb`
+7. In the `secrets.rb` file, edit the values as appropriate. You will likely need to change your database configuration settings, add your api key, and update default_image_path to an absolute path to the sample-images folder. 
 
 ## Running
 
