@@ -8,12 +8,8 @@ It is configured to read source images from S3.
 This uses Docker to locally to make it as easy as possible for developers to install.
 
 1.  `cp .env.example .env` (and fill in .env with credentials)
-2.  `docker-compose up db`
-3.  `docker-compose exec db mysql -u root -p'password' < db/setup/create_database.sql`
-4.  `docker-compose exec db mysql -u root -p'password' local_filestore_db < db/setup/filestore-sample-db.sql`
-5.  `docker-compose down`
-6.   `docker-compose up`
-7.  Test in a browser: http://localhost:8182/iiif/2/anything/full/full/0/default.jpg
+2.  `docker-compose up`
+3.  Test in a browser: http://localhost:8182/iiif/2/anything/full/full/0/default.jpg
 ## Using
 
 This branch looks for source images in the `./images` directory, which is mounted in the container at `/var/www/images.nypl.org`.
