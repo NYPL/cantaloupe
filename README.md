@@ -14,7 +14,7 @@ This uses Docker to locally to make it as easy as possible for developers to ins
 
 This branch looks for source images in the `./images` directory, which is mounted in the container at `/var/www/images.nypl.org`.
 
-Source and derivative images are cached in `./cache`, which is mounted into the container at `/usr/src/cantaloupe/cache`.
+Source and derivative images are cached in `./cache`, which is mounted into the container at `/ifs/prod/iiif-imagecache`.
 
 ## Git Workflow
 
