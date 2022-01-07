@@ -1,1 +1,11 @@
-/database-data/postgres
+/cache/*
+!/tmp/.keep
+
+/log/*
+!/log/.keep
+
+/tmp/*
+!/tmp/.keep
+
+.env
+.git

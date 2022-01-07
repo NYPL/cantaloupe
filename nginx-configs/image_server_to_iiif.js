@@ -39,6 +39,8 @@ function mapImageServerToIIIF(request, response) {
   } else {
     crop = "full"
   }
+  
+  // test http://0.0.0.0:8182/iiif/2/TH-09814/full/full/0/default.jpg
   var imageUrl = "http://0.0.0.0:8182/iiif/2/"+ identitifier + "/" + crop + "/" + urlSegment +"/0/default.jpg"
   
   //  When DR-1470 is complete, delegates.rb will need to know what derivative type is being requested.
