@@ -10,14 +10,14 @@ class Secret
   
   def self.api_configuration
     {
-      api_url: 'http://api.repo.nypl.org',
-      auth_token: 'GET FROM PARAMETER STORE: /production/iiif/repo_api/auth_token'
+      api_url: ENV['API_URL'],
+      auth_token: ENV['AUTH_TOKEN']
     }
   end
   
   def self.storage_configuration
     {
-      default_image_path: nil
+      default_image_path: ENV['DEFAULT_IMAGE_PATH']
     }
   end
 
