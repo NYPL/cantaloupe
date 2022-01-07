@@ -4,20 +4,44 @@ class Secret
     {
       url: ENV['DATABASE_URL'],
       username: ENV['DATABASE_USERNAME'],
-      password: ENV['DATABASE_PASSWORD'],
+      password: ENV['DATABASE_PASSWORD']
     }
   end
 
   def self.api_configuration
     {
       api_url: ENV['API_URL'],
-      auth_token: ENV['AUTH_TOKEN'],
+      auth_token: ENV['AUTH_TOKEN']
     }
   end
 
   def self.storage_configuration
     {
-      default_image_path: ENV['DEFAULT_IMAGE_PATH'],
+      default_image_path: ENV['DEFAULT_IMAGE_PATH']
     }
   end
+
+  # For local development. 
+  #
+  # Change this to match whatever you choose to set up your database as.
+  # def self.database_configuration
+  #   {
+  #     url: 'jdbc:mysql://localhost:3306/archive?useSSL=false',
+  #     username: 'root',
+  #     password: ''
+  #   }
+  # end
+  #
+  # def self.api_configuration
+  #   {
+  #     api_url: 'http://api.repo.nypl.org',
+  #     auth_token: 'yourAPIAuthTokenHere'
+  #   }
+  # end
+  #
+  # def self.storage_configuration
+  #   {
+  #     default_image_path: '/some/awesome/developer/cantaloupe/images/nypl.jpg'
+  #   }
+  # end
 end
