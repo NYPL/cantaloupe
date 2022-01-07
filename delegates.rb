@@ -101,30 +101,39 @@ class CustomDelegate
       end
     else
       logger.debug("NON_UFILE ACCESS")
-      # api_response = returns_rights?(context['identifier'])
+      api_response = returns_rights?(context['identifier'])
       true
     end
   end
 
   def returns_rights?(image_id)
+    logger = Java::edu.illinois.library.cantaloupe.script.Logger
+
     rights = get_rights(image_id)
+    logger.debug("RIGHTS ARE: #{rights}")
+
     # rough draft of iterpretation of rights statement for restricted images 
-    if rights.include?("nyplRights")
+    if !rights.nil?#rights.include?("nyplRights")
       true
     else
       false
     end
+    # true
   end
 
   # if an image is not restricted, return true (user can access)
   def is_not_restricted?(image_id)
+    logger = Java::edu.illinois.library.cantaloupe.script.Logger
+
     rights = get_rights(image_id)
+    logger.debug("RIGHTS ARE: #{rights}")
+
     # rough draft of iterpretation of rights statement for restricted images 
-    if rights.include?("Copyright Issues Present") && !rights.to_s.include?("Can be displayed on NYPL website")
-      false
-    else
-      true
-    end
+    # if rights.include?("Copyright Issues Present") && !rights.to_s.include?("Can be displayed on NYPL website")
+    #   false
+    # else
+    #   true
+    # end
   end
 
   def get_rights(image_id)
@@ -134,43 +143,37 @@ class CustomDelegate
     # image_id: 1992268
     # http://api.repo.nypl.org/api/v2/captures/rights/1992268
 
-    path = "captures/rights/#{image_id}"
+    # path = "captures/rights/#{image_id}"
     
-    fetch_path path
-  end
-
-  def fetch(url, headers)
-    logger = Java::edu.illinois.library.cantaloupe.script.Logger
-
-    request = Net::HTTP::Get.new(url)
-    request['Authorization'] = headers['Authorization'] unless headers['Authorization'].nil?
-    logger.debug("REQUEST IS: #{request}")
-
-    begin
-      uri = URI(url)
-      response = Net::HTTP.start(uri.host, uri.port) do |http|
-        http.read_timeout = 60 # Default is 60 seconds
-        http.request(request)
-      end
-      response = response.body
-    rescue Net::HTTPRequestTimeOut => e
-      logger.debug("HttpApiClient error: HTTPRequestTimeOut: #{e.message}")
-    rescue StandardError
-      logger.debug("HttpApiClient error: Unknown error: #{e.inspect}")
-    end
-
-    logger.debug("got response: #{response}")
-    
-    response
+    fetch_path "captures/rights/#{image_id}"
   end
 
   def fetch_path(path)
-    fetch api_url(path), headers
+    fetch api_url(path)
   end
 
-  def headers
-    headers = { 'Authorization' => "Token token=#{Secret.api_configuration[:auth_token]}" }
+  def fetch(url)
+    logger = Java::edu.illinois.library.cantaloupe.script.Logger
+
+    api_request = `curl -X POST -H 'Content-type:application/json' -H 'Accept: application/json' -H 'Content-Type: application/json' -H 'Authorization: Token token=egfcudzxmd4843fa ' -d '{'ips':['111.111.111.111','111.111.111.112','111.111.111.113']}' #{url}`
+    #     api_request = `curl -X POST -H 'Content-type:application/json' -H 'Accept: application/json' -H 'Content-Type: application/json' -H 'Authorization: Token token=egfcudzxmd4843fa ' -d '{'ips':['111.111.111.111','111.111.111.112','111.111.111.113']}' http://api.repo.nypl.org/api/v2/captures/rights/1992268`
+
+    logger.debug("REQUEST IS: #{api_request}")
+  
+    response = api_request #Kernel.system "#{api_request}"
+
+    logger.debug("got response: #{response}")
+
+    response
+    
   end
+  #`curl -X POST -H 'Content-type:application/json' -H 'Accept: application/json' -H 'Content-Type: application/json' -H 'Authorization: Token token=#{Secret.api_configuration[:auth_token]}' -d '{'ips':['111.111.111.111','111.111.111.112','111.111.111.113']}' #{url}`
+  # puts "api request is"
+  # puts api_request
+
+  # def headers
+  #   headers = { 'Authorization' => "Token token=#{Secret.api_configuration[:auth_token]}" }
+  # end
 
   def api_url(path)
     "#{Secret.api_configuration[:api_url]}/api/v2/#{path}"

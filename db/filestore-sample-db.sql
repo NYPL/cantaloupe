@@ -27,9 +27,9 @@ DROP TABLE IF EXISTS `file_store`;
 
 CREATE TABLE `file_store` (
   `ID` int unsigned NOT NULL AUTO_INCREMENT,
-  `FILE_NAME` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
-  `CHECKSUM` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
-  `FILE_ID` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '',
+  `FILE_NAME` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `CHECKSUM` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `FILE_ID` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
   `TIME_STAMP` timestamp NOT NULL,
   `TYPE` varchar(2) NOT NULL DEFAULT '',
   `W` float DEFAULT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE `file_store` (
   `last_check` date DEFAULT NULL,
   `fault` tinyint(1) unsigned zerofill DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `file_store` WRITE;
 /*!40000 ALTER TABLE `file_store` DISABLE KEYS */;
