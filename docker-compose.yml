@@ -1,11 +1,20 @@
 version: '3.4'
 services:
-  cantaloupe:
-    build: .
-    env_file:
-      - ./.env
-    volumes:
-      - './images:/var/www/images.nypl.org'
-      - './cache:/usr/src/cantaloupe/cache'
+  # cantaloupe:
+  #   build: .
+  #   env_file:
+  #     - ./.env
+  #   volumes:
+  #     - './images:/var/www/images.nypl.org'
+  #     - './cache:/usr/src/cantaloupe/cache'
+  #   ports:
+  #     - '8182:8182'
+
+  db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
     ports:
-      - '8182:8182'
+      - 3306:3306

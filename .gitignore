@@ -3,6 +3,7 @@
 cantaloupe-local.properties
 /database-data/mysql/*
 !/database-data/mysql/.keep
+db/data/
 cache/
 log/
 images/

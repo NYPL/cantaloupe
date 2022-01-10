@@ -11,12 +11,11 @@ function mapImageServerToIIIF(request, response) {
   // turn query string to hash
   var requestVars = request.variables['query_string'];
   var arrayOfKeyValues;
-  console.log("request vars: ", requestVars);
 
   if (requestVars) {
   	arrayOfKeyValues = requestVars.split('&');
   }
-  console.log("arrayOfKeyValues: ", arrayOfKeyValues);
+  
   var paramsHash = {};
   // Turns ['a=1', 'b=2', 'c=3'] and stores it into paramsHash as {"a": "1", "b": "2", "c": "3"}
   for (var i = 0; i < arrayOfKeyValues.length; i++) {
