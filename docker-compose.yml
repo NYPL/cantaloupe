@@ -10,6 +10,10 @@ services:
     ports:
       - '8182:8182'
 
+  shim:
+    build: ./shim
+    ports:
+      - "8080:80"
   db:
     image: mysql
     command: --default-authentication-plugin=mysql_native_password
