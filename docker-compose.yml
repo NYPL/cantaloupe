@@ -11,7 +11,9 @@ services:
       - '8182:8182'
 
   shim:
-    build: ./shim
+    build: ./nginx-configs
+    environment:
+      IIIF_HOST: http://172.16.1.195:8182/iiif/2/
     ports:
       - "8080:80"
   db:

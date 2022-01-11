@@ -8,8 +8,11 @@ It is configured to read source images from S3.
 This uses Docker to locally to make it as easy as possible for developers to install.
 
 1.  `cp .env.example .env` (and fill in .env with credentials)
-2.  `docker-compose up`
-3.  Test in a browser: http://localhost:8182/iiif/2/anything/full/full/0/default.jpg
+2.  Optional: To work locally on the shim, edit `nginx-configs/image_server_to_iiif.js` and comment out line 44 and comment in line 47. (NB: Make sure to revert these changes for deployment.)
+3.  `docker-compose build`
+4.  Test in a browser: http://localhost:8182/iiif/2/anything/full/full/0/default.jpg
+5.  Test shim in a browser: http://localhost:8000/index.php?id=anything&t=f
+
 ## Using
 
 This branch looks for source images in the `./images` directory, which is mounted in the container at `/var/www/images.nypl.org`.

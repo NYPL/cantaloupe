@@ -9,3 +9,4 @@ images/
 tmp/
 local-imagecache/
 secrets.rb
+cantaloupe/
