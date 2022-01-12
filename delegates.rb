@@ -95,7 +95,7 @@ class CustomDelegate
     # set type to variable since it will be referenced more frequently in future work
     type = context['request_uri'].split('=')[1]
     logger.debug("TYPE: #{type}")
-    if context['request_uri'] =~ /ufile=true/
+    if context['request_uri'] =~ /ufile=true/ || type == 'u'
       logger.debug("UFILE ACCESS")
       if u_file_access.include?(remote_ip) || remote_ip =~ /^63.147.60./
         true
@@ -105,7 +105,7 @@ class CustomDelegate
     else
       logger.debug("NON_UFILE ACCESS")
       rights = get_rights(context['identifier'], context['client_ip'])
-      is_restricted = returns_rights?(rights) && is_not_restricted?(rights, type)
+      is_not_restricted_for_ip = returns_rights?(rights) && is_not_restricted?(rights, type) #return true if not restricted
     end
   end
 
@@ -119,16 +119,11 @@ class CustomDelegate
   end
 
   def is_not_restricted?(rights, type)
+    logger = Java::edu.illinois.library.cantaloupe.script.Logger
     rights_json = JSON.parse(rights)
     nypl_rights = rights_json['nyplRights']
-    is_restricted_for_ip = nypl_rights['isRestrictedForIP']['$']
     available_derivatives_for_ip = nypl_rights['availableDerivatives']['$']
-    # if an image is not restricted for ip and the derivative is available for ip, return true
-    if !is_restricted_for_ip && available_derivatives_for_ip.include?(type)
-      false
-    else
-      true
-    end
+    available_derivatives_for_ip.include?(type) ? true : false
   end
 
   def get_rights(image_id, ip)
