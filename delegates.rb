@@ -1,4 +1,5 @@
 require 'java'
+require 'json'
 ##
 # Sample Ruby delegate script containing stubs and documentation for all
 # available delegate methods. See the "Delegate Script" section of the user
@@ -87,11 +88,13 @@ class CustomDelegate
     #'65.88.88.115'
     remote_ip = context['request_headers']['X-Forwarded-For']
     logger.debug("CONTEXT HASH: #{context}")
+    logger.debug("REQUEST HEADERS: #{context['request_headers']}")
+    logger.debug("CLIENT_IP: #{context['client_ip']}")
     logger.debug("IP ADDRESS: #{remote_ip}")
     logger.debug("REQUEST URI: #{context['request_uri']}")
     # set type to variable since it will be referenced more frequently in future work
     type = context['request_uri'].split('=')[1]
-    logger.debug("type: #{type}")
+    logger.debug("TYPE: #{type}")
     if context['request_uri'] =~ /ufile=true/
       logger.debug("UFILE ACCESS")
       if u_file_access.include?(remote_ip) || remote_ip =~ /^63.147.60./
@@ -101,13 +104,12 @@ class CustomDelegate
       end
     else
       logger.debug("NON_UFILE ACCESS")
-      # api_response = returns_rights?(context['identifier'])
-      true
+      rights = get_rights(context['identifier'], context['client_ip'])
+      is_restricted = returns_rights?(rights) && is_not_restricted?(rights, type)
     end
   end
 
-  def returns_rights?(image_id)
-    rights = get_rights(image_id)
+  def returns_rights?(rights)
     # rough draft of iterpretation of rights statement for restricted images 
     if rights.include?("nyplRights")
       true
@@ -116,60 +118,38 @@ class CustomDelegate
     end
   end
 
-  # if an image is not restricted, return true (user can access)
-  def is_not_restricted?(image_id)
-    rights = get_rights(image_id)
-    # rough draft of iterpretation of rights statement for restricted images 
-    if rights.include?("Copyright Issues Present") && !rights.to_s.include?("Can be displayed on NYPL website")
+  def is_not_restricted?(rights, type)
+    rights_json = JSON.parse(rights)
+    nypl_rights = rights_json['nyplRights']
+    is_restricted_for_ip = nypl_rights['isRestrictedForIP']['$']
+    available_derivatives_for_ip = nypl_rights['availableDerivatives']['$']
+    # if an image is not restricted for ip and the derivative is available for ip, return true
+    if !is_restricted_for_ip && available_derivatives_for_ip.include?(type)
       false
     else
       true
     end
   end
 
-  def get_rights(image_id)
+  def get_rights(image_id, ip)
     # for testing restricted uuid
     # uuid = '943f6f8f-f5cf-e0b8-e040-e00a18063cff'
     # for testing restricted image_id
     # image_id: 1992268
     # http://api.repo.nypl.org/api/v2/captures/rights/1992268
-
-    path = "captures/rights/#{image_id}"
-    
-    fetch_path path
+    fetch_path("captures/rights/#{image_id}", ip)
   end
 
-  def fetch(url, headers)
+  def fetch_path(path, ip)
+    fetch(api_url(path), ip)
+  end
+
+  def fetch(url, ip)
     logger = Java::edu.illinois.library.cantaloupe.script.Logger
-
-    request = Net::HTTP::Get.new(url)
-    request['Authorization'] = headers['Authorization'] unless headers['Authorization'].nil?
-    logger.debug("REQUEST IS: #{request}")
-
-    begin
-      uri = URI(url)
-      response = Net::HTTP.start(uri.host, uri.port) do |http|
-        http.read_timeout = 60 # Default is 60 seconds
-        http.request(request)
-      end
-      response = response.body
-    rescue Net::HTTPRequestTimeOut => e
-      logger.debug("HttpApiClient error: HTTPRequestTimeOut: #{e.message}")
-    rescue StandardError
-      logger.debug("HttpApiClient error: Unknown error: #{e.inspect}")
-    end
-
-    logger.debug("got response: #{response}")
-    
-    response
-  end
-
-  def fetch_path(path)
-    fetch api_url(path), headers
-  end
-
-  def headers
-    headers = { 'Authorization' => "Token token=#{Secret.api_configuration[:auth_token]}" }
+    logger.debug("API URL IS: #{url}")     
+    response = `curl --location --request POST #{url} -H 'Accept: application/json' -H 'Content-Type: application/json' -H 'Authorization: Token token=#{Secret.api_configuration[:auth_token]}' --data-raw '{"ips":["#{ip}"]}'`
+    logger.debug("REQUEST IS: #{response}")
+    return response
   end
 
   def api_url(path)
