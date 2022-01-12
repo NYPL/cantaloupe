@@ -40,7 +40,8 @@ function mapImageServerToIIIF(request, response) {
     crop = "full"
   }
   
-  // For deployments ... 
+  // TODO: Figure out how to include this an an environment variable and point to local iiif. -KAK 1/12/2022. 
+  // For deployments ... ALWAYS MAKE SURE THIS IS THE ACTIVE LINE when pushing to QA or Prod.
   var imageUrl = "http://0.0.0.0:8182/iiif/2/"+ identitifier + "/" + crop + "/" + urlSegment +"/0/default.jpg"
   
   // For local development ... 
