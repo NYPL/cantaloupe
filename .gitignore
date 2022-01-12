@@ -2,7 +2,6 @@
 .DS_Store
 /database-data/mysql/*
 !/database-data/mysql/.keep
-db/data/
 cache/
 db/data/
 log/
