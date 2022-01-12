@@ -46,6 +46,7 @@ function mapImageServerToIIIF(request, response) {
   
   // For local development ... Test via: http://localhost:8080/index.php?id=anything&t=f
   // This works for Macs. You may need to change this depending on your personal machine. For reference: https://forums.docker.com/t/how-to-reach-localhost-on-host-from-docker-container/113321/4
+  // If you have trouble, feel free to point this to http://172.16.1.195:8182/iiif/2/, which is the dev/qa IIIF.
   // var imageUrl = "http://172.17.0.1:8182/iiif/2/" + identitifier + "/" + crop + "/" + urlSegment +"/0/default.jpg"
   
   //  When DR-1470 is complete, delegates.rb will need to know what derivative type is being requested.
