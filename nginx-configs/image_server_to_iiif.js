@@ -7,10 +7,10 @@ var typeToDimensionMapping = {
   "f": "140",
   "b": "100"
 }
+
 function mapImageServerToIIIF(request, response) {
   // turn query string to hash
   var requestVars = request.variables['query_string'];
-  var iiifHost = process.env.IIIF_HOST;
   var arrayOfKeyValues;
 
   if (requestVars) {
