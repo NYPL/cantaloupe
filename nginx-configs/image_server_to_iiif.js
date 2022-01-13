@@ -28,7 +28,7 @@ function mapImageServerToIIIF(request, response) {
   var dimension = typeToDimensionMapping[imageType];
   var urlSegment;
   var crop;
-  if (imageType == 'u' || imageType == 'j' || imageType == 's') {
+  if (imageType == 'g' || imageType == 'j' || imageType == 's') {
     urlSegment = "full";
   } else {
     urlSegment = "!" + dimension + "," + dimension;
@@ -50,7 +50,7 @@ function mapImageServerToIIIF(request, response) {
   // var imageUrl = "http://172.17.0.1:8182/iiif/2/" + identitifier + "/" + crop + "/" + urlSegment +"/0/default.jpg"
   
   //  When DR-1470 is complete, delegates.rb will need to know what derivative type is being requested.
-  if (paramsHash['t'] == 'u' || paramsHash['t'] == 'j' || paramsHash['t'] == 's') {
+  if (paramsHash['t'] == 'g' || paramsHash['t'] == 'j' || paramsHash['t'] == 's') {
     request.headersOut['X-Ufile'] = 'true';
     return imageUrl + "?ufile=true";
   }  else {

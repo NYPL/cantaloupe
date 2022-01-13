@@ -84,7 +84,7 @@ class CustomDelegate
   def authorize(options = {})
     logger = Java::edu.illinois.library.cantaloupe.script.Logger
    
-    u_file_access = ['10.128.99.55','10.128.1.167','10.224.6.10','10.128.99.167','10.128.98.50','10.224.6.26','10.224.6.35','172.16.1.94', '66.234.38.35']
+    g_file_access = ['10.128.99.55','10.128.1.167','10.224.6.10','10.128.99.167','10.128.98.50','10.224.6.26','10.224.6.35','172.16.1.94', '66.234.38.35']
     #'65.88.88.115'
     remote_ip = context['request_headers']['X-Forwarded-For']
     logger.debug("CONTEXT HASH: #{context}")
@@ -92,12 +92,12 @@ class CustomDelegate
     logger.debug("CLIENT_IP: #{context['client_ip']}")
     logger.debug("IP ADDRESS: #{remote_ip}")
     logger.debug("REQUEST URI: #{context['request_uri']}")
-    # set type to variable since it will be referenced more frequently in future work
-    type = context['request_uri'].split('=')[1]
+    split_image_url = context['request_uri'].split('/') # ie. ["http:", "", "localhost:8182", "iiif", "2", "1992268", "full", "!150,150", "0", "default.jpg"]
+    type = split_image_url[7]=="full" ? split_image_url[7] : derivative_type(context['resulting_size'])
     logger.debug("TYPE: #{type}")
-    if context['request_uri'] =~ /ufile=true/ || type == 'u'
-      logger.debug("UFILE ACCESS")
-      if u_file_access.include?(remote_ip) || remote_ip =~ /^63.147.60./
+    if type == "full"
+      logger.debug("GFILE ACCESS")
+      if g_file_access.include?(remote_ip) || remote_ip =~ /^63.147.60./
         true
       else
         false
@@ -109,8 +109,20 @@ class CustomDelegate
     end
   end
 
+  def derivative_type(size)
+    singleTypeToDimensionMapping = {
+      "2560" => "v",
+      "1600" => "q",
+      "760" => "w",
+      "300" => "r",
+      "150" => "t",
+      "140" => "f",
+      "100" => "b"
+    }
+    singleTypeToDimensionMapping["#{size["width"]}"]
+  end
+  
   def returns_rights?(rights)
-    # rough draft of iterpretation of rights statement for restricted images 
     if rights.include?("nyplRights")
       true
     else
@@ -143,7 +155,7 @@ class CustomDelegate
     logger = Java::edu.illinois.library.cantaloupe.script.Logger
     logger.debug("API URL IS: #{url}")     
     response = `curl --location --request POST #{url} -H 'Accept: application/json' -H 'Content-Type: application/json' -H 'Authorization: Token token=#{Secret.api_configuration[:auth_token]}' --data-raw '{"ips":["#{ip}"]}'`
-    logger.debug("REQUEST IS: #{response}")
+    logger.debug("RESPONSE IS: #{response}")
     return response
   end
 
