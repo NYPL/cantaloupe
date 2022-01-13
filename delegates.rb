@@ -84,7 +84,7 @@ class CustomDelegate
   def authorize(options = {})
     logger = Java::edu.illinois.library.cantaloupe.script.Logger
    
-    g_file_access = ['10.128.99.55','10.128.1.167','10.224.6.10','10.128.99.167','10.128.98.50','10.224.6.26','10.224.6.35','172.16.1.94', '66.234.38.35']
+    full_res_file_access = ['10.128.99.55','10.128.1.167','10.224.6.10','10.128.99.167','10.128.98.50','10.224.6.26','10.224.6.35','172.16.1.94', '66.234.38.35']
     #'65.88.88.115'
     remote_ip = context['request_headers']['X-Forwarded-For']
     logger.debug("CONTEXT HASH: #{context}")
@@ -92,12 +92,11 @@ class CustomDelegate
     logger.debug("CLIENT_IP: #{context['client_ip']}")
     logger.debug("IP ADDRESS: #{remote_ip}")
     logger.debug("REQUEST URI: #{context['request_uri']}")
-    split_image_url = context['request_uri'].split('/') # ie. ["http:", "", "localhost:8182", "iiif", "2", "1992268", "full", "!150,150", "0", "default.jpg"]
-    type = split_image_url[7]=="full" ? split_image_url[7] : derivative_type(context['resulting_size'])
+    type = derivative_type(context['resulting_size'])
     logger.debug("TYPE: #{type}")
-    if type == "full"
-      logger.debug("GFILE ACCESS")
-      if g_file_access.include?(remote_ip) || remote_ip =~ /^63.147.60./
+    if type == "full_res"
+      logger.debug("FULL RES FILE ACCESS")
+      if full_res_file_access.include?(remote_ip) || remote_ip =~ /^63.147.60./
         true
       else
         false
@@ -110,16 +109,26 @@ class CustomDelegate
   end
 
   def derivative_type(size)
-    singleTypeToDimensionMapping = {
-      "2560" => "v",
-      "1600" => "q",
-      "760" => "w",
-      "300" => "r",
-      "150" => "t",
-      "140" => "f",
-      "100" => "b"
-    }
-    singleTypeToDimensionMapping["#{size["width"]}"]
+    width = size["width"]
+    height = size["height"]
+    case
+      when (width <= 100) || (width <= 100) 
+        "b"
+      when (width > 100 && width <= 140) || (height > 100 && height <= 140)
+        "f"
+      when (width > 140 && width <= 150) || (height > 140 && height <= 150)
+        "t"
+      when (width > 150 && width <= 300) || (height > 150 && height <= 300)
+        "r"
+      when (width > 300 && width <= 760) || (height > 300 && height <= 760)
+        "w"
+      when (width > 760 && width <= 1600) || (height > 760 && height <= 1600)
+        "q"
+      when (width > 1600 && width <= 2560) || (height > 1600 && height <= 2560) 
+        "v"
+      else
+        "full_res"
+    end
   end
   
   def returns_rights?(rights)
@@ -144,17 +153,13 @@ class CustomDelegate
     # for testing restricted image_id
     # image_id: 1992268
     # http://api.repo.nypl.org/api/v2/captures/rights/1992268
-    fetch_path("captures/rights/#{image_id}", ip)
+    fetch("captures/rights/#{image_id}", ip)
   end
 
-  def fetch_path(path, ip)
-    fetch(api_url(path), ip)
-  end
-
-  def fetch(url, ip)
+  def fetch(path, ip)
     logger = Java::edu.illinois.library.cantaloupe.script.Logger
-    logger.debug("API URL IS: #{url}")     
-    response = `curl --location --request POST #{url} -H 'Accept: application/json' -H 'Content-Type: application/json' -H 'Authorization: Token token=#{Secret.api_configuration[:auth_token]}' --data-raw '{"ips":["#{ip}"]}'`
+    logger.debug("API URL IS: #{api_url(path)}")     
+    response = `curl --location --request POST #{api_url(path)} -H 'Accept: application/json' -H 'Content-Type: application/json' -H 'Authorization: Token token=#{Secret.api_configuration[:auth_token]}' --data-raw '{"ips":["#{ip}"]}'`
     logger.debug("RESPONSE IS: #{response}")
     return response
   end
