@@ -91,7 +91,6 @@ class CustomDelegate
     logger.debug("IP ADDRESS: #{remote_ip}")
     logger.debug("REQUEST URI: #{context['request_uri']}")
     type = derivative_type(context['resulting_size'])
-    logger.debug("TYPE: #{type}")
     rights = get_rights(context['identifier'], context['client_ip'])
     is_not_restricted_for_ip = returns_rights?(rights) && is_not_restricted?(rights, type) #return true if not restricted
     # if type == "full_res"
