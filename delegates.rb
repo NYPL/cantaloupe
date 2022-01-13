@@ -112,22 +112,21 @@ class CustomDelegate
   end
 
   def derivative_type(size)
-    width = size["width"]
-    height = size["height"]
+    longest_side = size["width"] > size["height"] ? size["width"] : size["height"]
     case
-      when (width <= 100) || (width <= 100) 
+      when (longest_side <= 100) || (longest_side <= 100) 
         "b"
-      when (width > 100 && width <= 140) || (height > 100 && height <= 140)
+      when (longest_side > 100 && longest_side <= 140)
         "f"
-      when (width > 140 && width <= 150) || (height > 140 && height <= 150)
+      when (longest_side > 140 && longest_side <= 150)
         "t"
-      when (width > 150 && width <= 300) || (height > 150 && height <= 300)
+      when (longest_side > 150 && longest_side <= 300)
         "r"
-      when (width > 300 && width <= 760) || (height > 300 && height <= 760)
+      when (longest_side > 300 && longest_side <= 760)
         "w"
-      when (width > 760 && width <= 1600) || (height > 760 && height <= 1600)
+      when (longest_side > 760 && longest_side <= 1600)
         "q"
-      when (width > 1600 && width <= 2560) || (height > 1600 && height <= 2560) 
+      when (longest_side > 1600 && longest_side <= 2560)
         "v"
       else
         "full_res"
