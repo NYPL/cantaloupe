@@ -88,13 +88,10 @@ class CustomDelegate
     #'65.88.88.115'
     remote_ip = context['request_headers']['X-Forwarded-For']
     logger.debug("CONTEXT HASH: #{context}")
-    logger.debug("REQUEST HEADERS: #{context['request_headers']}")
-    logger.debug("CLIENT_IP: #{context['client_ip']}")
     logger.debug("IP ADDRESS: #{remote_ip}")
     logger.debug("REQUEST URI: #{context['request_uri']}")
     type = derivative_type(context['resulting_size'])
     logger.debug("TYPE: #{type}")
-    logger.debug("NON_UFILE ACCESS")
     rights = get_rights(context['identifier'], context['client_ip'])
     is_not_restricted_for_ip = returns_rights?(rights) && is_not_restricted?(rights, type) #return true if not restricted
     # if type == "full_res"
@@ -114,7 +111,7 @@ class CustomDelegate
   def derivative_type(size)
     longest_side = size["width"] > size["height"] ? size["width"] : size["height"]
     case
-      when (longest_side <= 100) || (longest_side <= 100) 
+      when (longest_side <= 100)
         "b"
       when (longest_side > 100 && longest_side <= 140)
         "f"
@@ -169,7 +166,6 @@ class CustomDelegate
 
   def fetch(path, ip)
     logger = Java::edu.illinois.library.cantaloupe.script.Logger
-    logger.debug("API URL IS: #{api_url(path)}")     
     response = `curl --location --request POST #{api_url(path)} -H 'Accept: application/json' -H 'Content-Type: application/json' -H 'Authorization: Token token=#{Secret.api_configuration[:auth_token]}' --data-raw '{"ips":["#{ip}"]}'`
     logger.debug("RESPONSE IS: #{response}")
     return response
