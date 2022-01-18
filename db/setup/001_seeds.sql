@@ -1,3 +1,6 @@
+CREATE DATABASE local_filestore_db;
+USE local_filestore_db;
+
 # ************************************************************
 # Sequel Ace SQL dump
 # Version 20019
