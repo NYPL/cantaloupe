@@ -9,3 +9,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Changelog and new git flow branches. (DR-1360)
 - Config files for qa and production. (DR-1360)
+- Added rights aware logic to return appropriate capture types for an IP address. (DR-1529)

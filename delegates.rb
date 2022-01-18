@@ -1,4 +1,5 @@
 require 'java'
+require 'json'
 ##
 # Sample Ruby delegate script containing stubs and documentation for all
 # available delegate methods. See the "Delegate Script" section of the user
@@ -83,32 +84,52 @@ class CustomDelegate
   def authorize(options = {})
     logger = Java::edu.illinois.library.cantaloupe.script.Logger
    
-    u_file_access = ['10.128.99.55','10.128.1.167','10.224.6.10','10.128.99.167','10.128.98.50','10.224.6.26','10.224.6.35','172.16.1.94', '66.234.38.35']
+    # full_res_file_access = ['10.128.99.55','10.128.1.167','10.224.6.10','10.128.99.167','10.128.98.50','10.224.6.26','10.224.6.35','172.16.1.94', '66.234.38.35']
     #'65.88.88.115'
     remote_ip = context['request_headers']['X-Forwarded-For']
     logger.debug("CONTEXT HASH: #{context}")
     logger.debug("IP ADDRESS: #{remote_ip}")
     logger.debug("REQUEST URI: #{context['request_uri']}")
-    # set type to variable since it will be referenced more frequently in future work
-    type = context['request_uri'].split('=')[1]
-    logger.debug("type: #{type}")
-    if context['request_uri'] =~ /ufile=true/
-      logger.debug("UFILE ACCESS")
-      if u_file_access.include?(remote_ip) || remote_ip =~ /^63.147.60./
-        true
-      else
-        false
-      end
-    else
-      logger.debug("NON_UFILE ACCESS")
-      # api_response = returns_rights?(context['identifier'])
-      true
-    end
+    type = derivative_type(context['resulting_size'])
+    rights = get_rights(context['identifier'], context['client_ip'])
+    is_not_restricted_for_ip = returns_rights?(rights) && is_not_restricted?(rights, type) #return true if not restricted
+    # if type == "full_res"
+    #   logger.debug("FULL RES FILE ACCESS")
+    #   if full_res_file_access.include?(remote_ip) || remote_ip =~ /^63.147.60./
+    #     true
+    #   else
+    #     false
+    #   end
+    # else
+      # logger.debug("NON_UFILE ACCESS")
+      # rights = get_rights(context['identifier'], context['client_ip'])
+      # is_not_restricted_for_ip = returns_rights?(rights) && is_not_restricted?(rights, type) #return true if not restricted
+    # end
   end
 
-  def returns_rights?(image_id)
-    rights = get_rights(image_id)
-    # rough draft of iterpretation of rights statement for restricted images 
+  def derivative_type(size)
+    longest_side = size["width"] > size["height"] ? size["width"] : size["height"]
+    case
+      when (longest_side <= 100)
+        "b"
+      when (longest_side > 100 && longest_side <= 140)
+        "f"
+      when (longest_side > 140 && longest_side <= 150)
+        "t"
+      when (longest_side > 150 && longest_side <= 300)
+        "r"
+      when (longest_side > 300 && longest_side <= 760)
+        "w"
+      when (longest_side > 760 && longest_side <= 1600)
+        "q"
+      when (longest_side > 1600 && longest_side <= 2560)
+        "v"
+      else
+        "full_res"
+    end
+  end
+  
+  def returns_rights?(rights)
     if rights.include?("nyplRights")
       true
     else
@@ -116,60 +137,37 @@ class CustomDelegate
     end
   end
 
-  # if an image is not restricted, return true (user can access)
-  def is_not_restricted?(image_id)
-    rights = get_rights(image_id)
-    # rough draft of iterpretation of rights statement for restricted images 
-    if rights.include?("Copyright Issues Present") && !rights.to_s.include?("Can be displayed on NYPL website")
-      false
+  def is_not_restricted?(rights, type)
+    logger = Java::edu.illinois.library.cantaloupe.script.Logger
+    rights_json = JSON.parse(rights)
+    nypl_rights = rights_json['nyplRights']
+    available_derivatives_for_ip = nypl_rights['availableDerivatives']['$']
+    if type == "full_res"
+      logger.debug("FULL RES FILE ACCESS")
+      if available_derivatives_for_ip.include?('g') || available_derivatives_for_ip.include?('j') || available_derivatives_for_ip.include?('s') 
+        true
+      else
+        false
+      end
     else
-      true
+      available_derivatives_for_ip.include?(type) ? true : false
     end
   end
 
-  def get_rights(image_id)
+  def get_rights(image_id, ip)
     # for testing restricted uuid
     # uuid = '943f6f8f-f5cf-e0b8-e040-e00a18063cff'
     # for testing restricted image_id
     # image_id: 1992268
     # http://api.repo.nypl.org/api/v2/captures/rights/1992268
-
-    path = "captures/rights/#{image_id}"
-    
-    fetch_path path
+    fetch("captures/rights/#{image_id}", ip)
   end
 
-  def fetch(url, headers)
+  def fetch(path, ip)
     logger = Java::edu.illinois.library.cantaloupe.script.Logger
-
-    request = Net::HTTP::Get.new(url)
-    request['Authorization'] = headers['Authorization'] unless headers['Authorization'].nil?
-    logger.debug("REQUEST IS: #{request}")
-
-    begin
-      uri = URI(url)
-      response = Net::HTTP.start(uri.host, uri.port) do |http|
-        http.read_timeout = 60 # Default is 60 seconds
-        http.request(request)
-      end
-      response = response.body
-    rescue Net::HTTPRequestTimeOut => e
-      logger.debug("HttpApiClient error: HTTPRequestTimeOut: #{e.message}")
-    rescue StandardError
-      logger.debug("HttpApiClient error: Unknown error: #{e.inspect}")
-    end
-
-    logger.debug("got response: #{response}")
-    
-    response
-  end
-
-  def fetch_path(path)
-    fetch api_url(path), headers
-  end
-
-  def headers
-    headers = { 'Authorization' => "Token token=#{Secret.api_configuration[:auth_token]}" }
+    response = `curl --location --request POST #{api_url(path)} -H 'Accept: application/json' -H 'Content-Type: application/json' -H 'Authorization: Token token=#{Secret.api_configuration[:auth_token]}' --data-raw '{"ips":["#{ip}"]}'`
+    logger.debug("RESPONSE IS: #{response}")
+    return response
   end
 
   def api_url(path)
