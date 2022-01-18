@@ -235,9 +235,9 @@ class CustomDelegate
     statement = nil
     uuid = nil
     begin
-      query =  "SELECT UUID FROM file_store WHERE TYPE in ('j', 's', 'u', 'w', 'r', 't') "
+      query =  "SELECT UUID FROM file_store WHERE TYPE in ('j', 's', 'w', 'r', 't') "
       query += "AND FILE_ID = ? AND STATUS = 4 "
-      query += "ORDER BY TYPE = 'j' DESC, TYPE = 's' DESC, TYPE = 'u' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC"
+      query += "ORDER BY TYPE = 'j' DESC, TYPE = 's' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC"
       statement = connection.prepare_statement(query)
       statement.setString(1, context['identifier'])
       results = statement.execute_query
