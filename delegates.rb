@@ -86,25 +86,11 @@ class CustomDelegate
    
     # full_res_file_access = ['10.128.99.55','10.128.1.167','10.224.6.10','10.128.99.167','10.128.98.50','10.224.6.26','10.224.6.35','172.16.1.94', '66.234.38.35']
     #'65.88.88.115'
-    remote_ip = context['request_headers']['X-Forwarded-For']
     logger.debug("CONTEXT HASH: #{context}")
-    logger.debug("IP ADDRESS: #{remote_ip}")
     logger.debug("REQUEST URI: #{context['request_uri']}")
     type = derivative_type(context['resulting_size'])
     rights = get_rights(context['identifier'], context['client_ip'])
-    is_not_restricted_for_ip = returns_rights?(rights) && is_not_restricted?(rights, type) #return true if not restricted
-    # if type == "full_res"
-    #   logger.debug("FULL RES FILE ACCESS")
-    #   if full_res_file_access.include?(remote_ip) || remote_ip =~ /^63.147.60./
-    #     true
-    #   else
-    #     false
-    #   end
-    # else
-      # logger.debug("NON_UFILE ACCESS")
-      # rights = get_rights(context['identifier'], context['client_ip'])
-      # is_not_restricted_for_ip = returns_rights?(rights) && is_not_restricted?(rights, type) #return true if not restricted
-    # end
+    returns_rights?(rights) && is_not_restricted?(rights, type)
   end
 
   def derivative_type(size)
@@ -144,13 +130,9 @@ class CustomDelegate
     available_derivatives_for_ip = nypl_rights['availableDerivatives']['$']
     if type == "full_res"
       logger.debug("FULL RES FILE ACCESS")
-      if available_derivatives_for_ip.include?('g') || available_derivatives_for_ip.include?('j') || available_derivatives_for_ip.include?('s') 
-        true
-      else
-        false
-      end
+      available_derivatives_for_ip.include?('g') || available_derivatives_for_ip.include?('j') || available_derivatives_for_ip.include?('s') 
     else
-      available_derivatives_for_ip.include?(type) ? true : false
+      available_derivatives_for_ip.include?(type)
     end
   end
 
