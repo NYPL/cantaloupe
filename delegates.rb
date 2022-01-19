@@ -89,8 +89,11 @@ class CustomDelegate
     logger.debug("CONTEXT HASH: #{context}")
     logger.debug("REQUEST URI: #{context['request_uri']}")
     type = derivative_type(context['resulting_size'])
+    logger.debug("TYPE: #{type}")
     rights = get_rights(context['identifier'], context['client_ip'])
-    returns_rights?(rights) && is_not_restricted?(rights, type)
+    allowed = returns_rights?(rights) && is_not_restricted?(rights, type)
+    logger.debug("ALLOWED? #{allowed}")
+    allowed
   end
 
   def derivative_type(size)
