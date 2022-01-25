@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Updated
 - Updated pecking order of derivatives to exclude u files. (DR-1611) 
+- Updated pecking order of derivatives to include g, v, and q files. (DR-1611) 
 
 ### Added
 - Changelog and new git flow branches. (DR-1360)
