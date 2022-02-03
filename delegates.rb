@@ -1,4 +1,5 @@
 require 'java'
+require 'json'
 ##
 # Sample Ruby delegate script containing stubs and documentation for all
 # available delegate methods. See the "Delegate Script" section of the user
@@ -14,6 +15,7 @@ require 'java'
 # Cantaloupe 4.
 #
 require './secrets'
+# require 'net/http'
 
 class CustomDelegate
   @logger = Java::edu.illinois.library.cantaloupe.script.Logger
@@ -82,24 +84,80 @@ class CustomDelegate
   def authorize(options = {})
     logger = Java::edu.illinois.library.cantaloupe.script.Logger
    
-    u_file_access = ['10.128.99.55','10.128.1.167','10.224.6.10','10.128.99.167','10.128.98.50','10.224.6.26','10.224.6.35','172.16.1.94', '66.234.38.35']
+    # full_res_file_access = ['10.128.99.55','10.128.1.167','10.224.6.10','10.128.99.167','10.128.98.50','10.224.6.26','10.224.6.35','172.16.1.94', '66.234.38.35']
     #'65.88.88.115'
-    remote_ip = context['request_headers']['X-Forwarded-For']
-    logger.debug("IP ADDRESS: #{remote_ip}")
+    logger.debug("CONTEXT HASH: #{context}")
     logger.debug("REQUEST URI: #{context['request_uri']}")
-    if context['request_uri'] =~ /ufile=true/ 
-      logger.debug("UFILE ACCESS")
-      if u_file_access.include?(remote_ip) || remote_ip =~ /^63.147.60./
-        true
-      else
-        false
-      end
-    else
-      logger.debug("NON_UFILE ACCESS")
-      true 
-    end 
+    type = derivative_type(context['resulting_size'])
+    logger.debug("TYPE: #{type}")
+    rights = get_rights(context['identifier'], context['client_ip'])
+    allowed = returns_rights?(rights) && is_not_restricted?(rights, type)
+    logger.debug("ALLOWED? #{allowed}")
+    allowed
   end
 
+  def derivative_type(size)
+    longest_side = size["width"] > size["height"] ? size["width"] : size["height"]
+    case
+      when (longest_side <= 100)
+        "b"
+      when (longest_side > 100 && longest_side <= 140)
+        "f"
+      when (longest_side > 140 && longest_side <= 150)
+        "t"
+      when (longest_side > 150 && longest_side <= 300)
+        "r"
+      when (longest_side > 300 && longest_side <= 760)
+        "w"
+      when (longest_side > 760 && longest_side <= 1600)
+        "q"
+      when (longest_side > 1600 && longest_side <= 2560)
+        "v"
+      else
+        "full_res"
+    end
+  end
+  
+  def returns_rights?(rights)
+    if rights.include?("nyplRights")
+      true
+    else
+      false
+    end
+  end
+
+  def is_not_restricted?(rights, type)
+    logger = Java::edu.illinois.library.cantaloupe.script.Logger
+    rights_json = JSON.parse(rights)
+    nypl_rights = rights_json['nyplRights']
+    available_derivatives_for_ip = nypl_rights['availableDerivatives']['$']
+    if type == "full_res"
+      logger.debug("FULL RES FILE ACCESS")
+      available_derivatives_for_ip.include?('g') || available_derivatives_for_ip.include?('j') || available_derivatives_for_ip.include?('s') 
+    else
+      available_derivatives_for_ip.include?(type)
+    end
+  end
+
+  def get_rights(image_id, ip)
+    # for testing restricted uuid
+    # uuid = '943f6f8f-f5cf-e0b8-e040-e00a18063cff'
+    # for testing restricted image_id
+    # image_id: 1992268
+    # http://api.repo.nypl.org/api/v2/captures/rights/1992268
+    fetch("captures/rights/#{image_id}", ip)
+  end
+
+  def fetch(path, ip)
+    logger = Java::edu.illinois.library.cantaloupe.script.Logger
+    response = `curl --location --request POST #{api_url(path)} -H 'Accept: application/json' -H 'Content-Type: application/json' -H 'Authorization: Token token=#{Secret.api_configuration[:auth_token]}' --data-raw '{"ips":["#{ip}"]}'`
+    logger.debug("RESPONSE IS: #{response}")
+    return response
+  end
+
+  def api_url(path)
+    "#{Secret.api_configuration[:api_url]}/api/v2/#{path}"
+  end
 
   ##
   # Used to add additional keys to an information JSON response. See the
@@ -151,38 +209,42 @@ class CustomDelegate
   #                      given identifier, or nil if not found.
   #
   def filesystemsource_pathname(options = {})
-      logger = Java::edu.illinois.library.cantaloupe.script.Logger
-      Java::com.mysql.jdbc.Driver
-        url = Secret.database_configuration[:url]
-        username = Secret.database_configuration[:username]
-        password = Secret.database_configuration[:password]
-        connection = java.sql.DriverManager.get_connection(url, username, password)
-        statement = nil
-        uuid = nil
-      begin
-        query =  "SELECT UUID FROM file_store WHERE TYPE in ('j', 's', 'u', 'w', 'r', 't') "
-        query += "AND FILE_ID = ? AND STATUS = 4 "
-        query += "ORDER BY TYPE = 'j' DESC, TYPE = 's' DESC, TYPE = 'u' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC"
-        statement = connection.prepare_statement(query)
-        statement.setString(1, context['identifier'])
-        results = statement.execute_query
-        if results.next
-          uuid = results.getString('UUID')
-          logger.debug("UUID: #{uuid}")
-        else
-          logger.debug('NO RESULTS...')
-        end
-      ensure
-        connection.close if connection
-        statement.close if statement
+    logger = Java::edu.illinois.library.cantaloupe.script.Logger
+    url = Secret.database_configuration[:url]
+    username = Secret.database_configuration[:username]
+    password = Secret.database_configuration[:password]
+    default_image_path = Secret.storage_configuration[:default_image_path]
+    connection = java.sql.DriverManager.get_connection(url, username, password)
+    statement = nil
+    uuid = nil
+    begin
+      query =  "SELECT UUID FROM file_store WHERE TYPE in ('j', 's', 'g', 'v', 'q', 'w', 'r', 't') "
+      query += "AND FILE_ID = ? AND STATUS = 4 "
+      query += "ORDER BY TYPE = 'j' DESC, TYPE = 's' DESC, TYPE = 'g' DESC, TYPE = 'v' DESC, TYPE = 'q' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC"
+      statement = connection.prepare_statement(query)
+      statement.setString(1, context['identifier'])
+      results = statement.execute_query
+      if results.next
+        uuid = results.getString('UUID')
+        logger.debug("UUID: #{uuid}")
+      else
+        logger.debug('NO RESULTS...')
       end
-      
-      path = nil
-      if not uuid.nil?
-        uuid =~ /(....)(....)\-(....)\-(....)\-(....)\-(....)(....)(..)../
-        path = "/ifs/prod/repo/#{uuid[0..1]}/#{$1}/#{$2}/#{$3}/#{$4}/#{$5}/#{$6}/#{$7}/#{$8}/#{uuid}"
-      end
-    path.nil? ? "/ifs/prod/repo/FF/FF02/CD3C/93C7/11DD/A1C2/8CF9/9956/CD/FF02CD3C-93C7-11DD-A1C2-8CF99956CD08" : path
+    ensure
+      connection.close if connection
+      statement.close if statement
+    end
+    
+    path = nil
+    if not uuid.nil?
+      uuid =~ /(....)(....)\-(....)\-(....)\-(....)\-(....)(....)(..)../
+      path = "/ifs/prod/repo/#{uuid[0..1]}/#{$1}/#{$2}/#{$3}/#{$4}/#{$5}/#{$6}/#{$7}/#{$8}/#{uuid}"
+    end
+    if path.nil? 
+      default_image_path != nil ? default_image_path : "/ifs/prod/repo/FF/FF02/CD3C/93C7/11DD/A1C2/8CF9/9956/CD/FF02CD3C-93C7-11DD-A1C2-8CF99956CD08"
+    else
+      path
+    end
   end
 
   ##
@@ -230,7 +292,6 @@ class CustomDelegate
   # Stephen Schor: Setting bucket name here allows us to configure it as an environment variable
   # as opposed to setting it in the .properties file, which can't read environment variables.
   def s3source_object_info(options = {})
-    {'bucket' => ENV['SOURCE_S3_BUCKET_NAME'], 'key' => context['identifier']}
   end
 
   ##
