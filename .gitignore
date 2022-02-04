@@ -1,6 +1,12 @@
 .env
+.DS_Store
 /database-data/mysql/*
 !/database-data/mysql/.keep
 cache/
+db/data/
 log/
+images/
+tmp/
+local-imagecache/
 secrets.rb
+cantaloupe/

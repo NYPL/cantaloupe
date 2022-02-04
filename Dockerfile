@@ -1,21 +1,27 @@
-FROM jruby:9.2 as production
+FROM openjdk:11
 
-# Default Cantaloupe port
-EXPOSE 8182
+# Install dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    graphicsmagick \
+    imagemagick \
+		ffmpeg \
+		maven \
+		libopenjp2-tools \
+		redis-server \
+  && rm -rf /var/lib/apt/lists/*
 
-# throw errors if Gemfile has been modified since Gemfile.lock
-# RUN bundle config --global frozen 1
-RUN mkdir /usr/src/cantaloupe
-WORKDIR /usr/src/cantaloupe
+WORKDIR /cantaloupe
 
-# Bundle gems at build time
-COPY ./cantaloupe-4.0.2 /usr/src/cantaloupe
-RUN bundle platform
-RUN bundle install
+# Copy Cantaloupe war
+COPY cantaloupe-4.1.9.war .
 
-CMD java -Dcantaloupe.config=./cantaloupe.properties -Xmx2g -jar cantaloupe-4.0.2.war
+# Copy JDBC driver
+COPY mysql-connector-java-8.0.27.jar .
 
-FROM production AS development
+# Copy config
+COPY cantaloupe.properties .
+COPY delegates.rb .
+COPY secrets.rb .
 
-# In development mode it will be mounted (thanks to docker-compose.yml)
-run rm -rf /usr/src/cantaloupe/*
+CMD java -cp ./mysql-connector-java-8.0.27.jar:./cantaloupe-4.1.9.war -Dcantaloupe.config=./cantaloupe.properties -Xmx2g edu.illinois.library.cantaloupe.StandaloneEntry

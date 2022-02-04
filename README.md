@@ -7,59 +7,39 @@ It is configured to read source images from S3.
 
 This uses Docker to locally to make it as easy as possible for developers to install.
 
-1.  Clone this git repository.
-2.  `cp .env.example .env` (and fill in .env with credentials)
+1.  `cp .env.example .env` (and fill in .env with credentials)
+2.  Optional: To work locally on the shim, edit `nginx-configs/image_server_to_iiif.js` and comment out line 44 and comment in line 47. (NB: Make sure to revert these changes for deployment.)
 3.  `docker-compose build`
-
-## Running
-
-1.  `docker-compose up`
+4.  Test in a browser: http://localhost:8182/iiif/2/anything/full/full/0/default.jpg
+5.  Test shim in a browser: http://localhost:8080/index.php?id=anything&t=f
 
 ## Using
 
-This branch looks for source images in the S3 bucket named set by the `SOURCE_S3_BUCKET_NAME`
-environment variable. The key and secret can be found in parameter store,
-see [.env.example](./.env.example) for the parameter store key.
+This branch looks for source images in the `./images` directory, which is mounted in the container at `/var/www/images.nypl.org`.
 
-### Caching
-
-Locally, source and derivative images are cached in `./cantaloupe-4.0.2/cache`
-which is mounted into the container, thanks to [docker-compose.yml](./docker-compose.yml).
-
-In the container, that is the directory `/usr/src/cantaloupe/cache` in both production and
-locally.
-
-#### Clustered Caching
-
-Our first, naive implementation will have each container have its own cache
-but I could see us mounting the cache directory from the host machine into
-the multiple containers so they can share it.
+Source and derivative images are cached in `./cache`, which is mounted into the container at `/ifs/prod/iiif-imagecache`.
 
 ## Git Workflow
 
 Our branches (in order or stability are):
 
-| Branch     | Environment | AWS Account      | Link To Application |
-|:-----------|:------------|:-----------------|:--------------------|
-| master     | none        | NA               | NA                  |
-| qa         | qa          | nypl-digital-dev | ???                 |
-| production | production  | nypl-digital-dev | ???                 |
+| Branch     | Environment | AWS Account      | Example link                                         |  
+|:-----------|:------------|:-----------------|:-----------------------------------------------------|
+| main       | none        | NA               | NA                                                   |
+| develop    | none        | NA               | NA                                                   |
+| qa         | qa          | nypl-digital-dev | https://dev-iiif.nypl.org/index.php?id=1590363&t=w   |
+| production | production  | nypl-digital-dev | https://iiif-prod.nypl.org/index.php?id=1590363&t=w  |
 
-1. Feature branches are cut from `master`.
-2. Once the feature branch is ready to be merged, file a pull request of the branch _into_ master.
-3. Branches are "promoted" by merging from less stable to more. (master -> qa -> production )
+1. Feature branches are cut from `develop`.
+2. Once the feature branch is ready to be merged, file a pull request of the branch _into_ develop.
+3. Branches are "promoted" by merging from less stable to more. (develop -> qa -> production )
+4. Always make sure to revert to deployment settings in the secrets.rb before commiting changes to deploy. 
 
 ## Deployment
 
-We use Travis for continuous deployment.
-Merging to certain branches automatically deploys to the environment associated to
-that branch.
+We use Bamboo for deployments. 
 
-| Merge from | Into         | Deploys to...  |
-|:-----------|:-------------|:---------------|
-| `master`   | `qa`         | qa env         |
-| `qa`       | `production` | production env |
-
-For insight into how CD works look at [.travis.yml](./.travis.yml) and the
-[provisioning/travis_ci_and_cd](./provisioning/travis_ci_and_cd) directory.
-The approach is inspired by [this blog post](https://dev.mikamai.com/2016/05/17/continuous-delivery-with-travis-and-ecs/) ([google cached version](https://webcache.googleusercontent.com/search?q=cache:NodZ-GZnk6YJ:https://dev.mikamai.com/2016/05/17/continuous-delivery-with-travis-and-ecs/+&cd=1&hl=en&ct=clnk&gl=us&client=firefox-b-1-ab)).
+| Job ...                                             | Deploys branch ... | Deploys to ...     |
+|:----------------------------------------------------|:-------------------|:-------------------|
+| `https://bamboo02.nypl.org/browse/DAMS-DCRNI`       | `qa`               | dev-iiif.nypl.org  |
+| `https://bamboo02.nypl.org/browse/DAMS-DCRNP`       | `production`       | iiif-prod.nypl.org |
