@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.0] - 2022-02-03
+## [0.1.0] - 2022-02-04
 
 ### Updated
 - Updated pecking order of derivatives to exclude u files. (DR-1611) 
