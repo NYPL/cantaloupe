@@ -150,6 +150,8 @@ class CustomDelegate
 
   def fetch(path, ip)
     logger = Java::edu.illinois.library.cantaloupe.script.Logger
+    logger.debug("API URL IS: #{api_url(path)}")
+    logger.debug("IPS ARE: #{ip}")
     response = `curl --location --request POST #{api_url(path)} -H 'Accept: application/json' -H 'Content-Type: application/json' -H 'Authorization: Token token=#{Secret.api_configuration[:auth_token]}' --data-raw '{"ips":["#{ip}"]}'`
     logger.debug("RESPONSE IS: #{response}")
     return response
