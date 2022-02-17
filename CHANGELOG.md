@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Added new type handling for tif requests. (DR-1678)
+
 ## [0.1.0] - 2022-02-04
 
 ### Updated
