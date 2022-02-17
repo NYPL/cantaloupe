@@ -49,10 +49,10 @@ function mapImageServerToIIIF(request, response) {
   
   // TODO: Figure out how to include this an an environment variable and point to local iiif. -KAK 1/12/2022. 
   // For deployments ... ALWAYS MAKE SURE THIS IS THE ACTIVE LINE when pushing to QA or Prod.
-  // var imageUrl = "http://0.0.0.0:8182/iiif/2/"+ identitifier + "/" + crop + "/" + urlSegment +"/0/" + quality
+  var imageUrl = "http://0.0.0.0:8182/iiif/2/"+ identitifier + "/" + crop + "/" + urlSegment +"/0/" + quality
   /* For local development ... Test via: http://localhost:8080/index.php?id=anything&t=f
      This works for Macs. You may need to change this depending on your personal machine. For reference: https://forums.docker.com/t/how-to-reach-localhost-on-host-from-docker-container/113321/4
      If you have trouble, feel free to point this to http://172.16.1.195:8182/iiif/2/, which is the dev/qa IIIF. */
-  var imageUrl = "http://172.17.0.1:8182/iiif/2/" + identitifier + "/" + crop + "/" + urlSegment + "/0/" + quality
+  // var imageUrl = "http://172.17.0.1:8182/iiif/2/" + identitifier + "/" + crop + "/" + urlSegment + "/0/" + quality
   return imageUrl ; 
 }
