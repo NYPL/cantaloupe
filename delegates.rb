@@ -98,6 +98,7 @@ class CustomDelegate
 
   def derivative_type(size)
     longest_side = size["width"] > size["height"] ? size["width"] : size["height"]
+    puts "longest_side is #{longest_side}"
     case
       when (longest_side <= 100)
         "b"
