@@ -37,6 +37,8 @@ function mapImageServerToIIIF(request, response) {
   
   if (imageType == 'g' || imageType == 'j' || imageType == 's' || imageType == 'tif') {
     urlSegment = "full";
+  } else if (imageType == 'f') {
+    urlSegment = "," + dimension;
   } else {
     urlSegment = "!" + dimension + "," + dimension;
   }
