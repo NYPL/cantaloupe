@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Updated
 - Increased cache time by a factor of 2. (DR-1804)
 
+## Fixed
+- Fixed bug with cutting f derivatives. (DR-1764)
+
+
 ## [0.1.1] - 2022-03-24
 
 ### Updated
