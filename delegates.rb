@@ -83,12 +83,11 @@ class CustomDelegate
   #
   def authorize(options = {})
     logger = Java::edu.illinois.library.cantaloupe.script.Logger
-   
     # full_res_file_access = ['10.128.99.55','10.128.1.167','10.224.6.10','10.128.99.167','10.128.98.50','10.224.6.26','10.224.6.35','172.16.1.94', '66.234.38.35']
     #'65.88.88.115'
     logger.debug("CONTEXT HASH: #{context}")
     logger.debug("REQUEST URI: #{context['request_uri']}")
-    type = derivative_type(context['resulting_size'])
+    type = context['request_uri'].include?("info.json") ? "full_res" : derivative_type(context['resulting_size'])
     logger.debug("TYPE: #{type}")
     rights = get_rights(context['identifier'], context['client_ip'])
     allowed = returns_rights?(rights) && is_not_restricted?(rights, type)
