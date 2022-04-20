@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Updated
+- Move cache directory back to application directory.  
+
 ## [0.1.2] - 2022-04-01
 
 ### Updated
