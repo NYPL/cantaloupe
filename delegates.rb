@@ -18,7 +18,10 @@ require './secrets'
 # require 'net/http'
 
 class CustomDelegate
-  @logger = Java::edu.illinois.library.cantaloupe.script.Logger
+  @logger= Java::edu.illinois.library.cantaloupe.script.Logger
+  @rights = {}
+  @available_derivatives_for_ip = []
+
   ##
   # Attribute for the request context, which is a hash containing information
   # about the current request.
@@ -89,38 +92,78 @@ class CustomDelegate
     logger.debug("REQUEST URI: #{context['request_uri']}")
     if context['request_uri'].include?("info.json") 
       true
-    else 
-      type = derivative_type(context['resulting_size'])
+    else
+      region = context['request_uri'].split('/')[6]
+      logger.debug("region is: #{region}")
+      type = (region == "full" || region == "square") ? derivative_type_from_size(context['resulting_size']) : derivative_type_from_region(region, context['full_size'])
       logger.debug("TYPE: #{type}")
-      rights = get_rights(context['identifier'], context['client_ip'])
-      allowed = returns_rights?(rights) && is_not_restricted?(rights, type)
+      # rights = get_rights(context['identifier'], context['client_ip'])
+      allowed = returns_rights?(@rights) && is_not_restricted?(@rights, type)
       logger.debug("ALLOWED? #{allowed}")
       allowed
     end
   end
 
-  def derivative_type(size)
+  def is_zoomed_region?()
+    region = context['request_uri'].split('/')[6]
+    region == "full" ? false : true 
+  end
+
+  def derivative_type_from_size(size)
     longest_side = size["width"] > size["height"] ? size["width"] : size["height"]
-    case
-      when (longest_side <= 100)
-        "b"
-      when (longest_side > 100 && longest_side <= 140)
-        "f"
-      when (longest_side > 140 && longest_side <= 150)
-        "t"
-      when (longest_side > 150 && longest_side <= 300)
-        "r"
-      when (longest_side > 300 && longest_side <= 760)
-        "w"
-      when (longest_side > 760 && longest_side <= 1600)
-        "q"
-      when (longest_side > 1600 && longest_side <= 2560)
-        "v"
-      else
-        "full_res"
-    end
+    derivative_type(longest_side)
+  end
+
+  def derivative_type_from_region(region_str, size)
+    logger = Java::edu.illinois.library.cantaloupe.script.Logger
+    region = region_str.split(/[:,\,]/)#.sort_by{|s| s.to_i} #fka region_sort
+    x_max = ""
+    y_max = ""
+    region_pxls = []
+    if region[0] != "pct"
+      region_pxls = region.map(&:to_i)
+      logger.debug("region_pxls is : #{region_pxls}")
+    else
+      region.shift
+      region_pxls = percent_to_pixel(region,size)
+    end 
+    x_max = region_pxls[0]+region_pxls[2]
+    y_max = region_pxls[1]+region_pxls[3]
+    largest_pixel = x_max > y_max ? x_max : y_max    
+    derivative_type(largest_pixel)
   end
   
+  def percent_to_pixel(region_str, size)
+    region_pct = region_str.map{|s| s.to_f / 100}
+    region_pxls = []
+    region_pxls[0] = (region_pct[0] * size["width"]).ceil
+    region_pxls[1] = (region_pct[1] * size["height"]).ceil
+    region_pxls[2] = (region_pct[2] * size["width"]).ceil
+    region_pxls[3] = (region_pct[3] * size["height"]).ceil 
+    return region_pxls
+  end 
+
+  def derivative_type(dimension)
+    case
+    when (dimension <= 100)
+      "b"
+    when (dimension > 100 && dimension <= 140)
+      "f"
+    when (dimension > 140 && dimension <= 150)
+      "t"
+    when (dimension > 150 && dimension <= 300)
+      "r"
+    when (dimension > 300 && dimension <= 760)
+      "w"
+    when (dimension > 760 && dimension <= 1600)
+      "q"
+    when (dimension > 1600 && dimension <= 2560)
+      "v"
+    else
+      "full_res"
+    end
+  end
+
   def returns_rights?(rights)
     if rights.include?("nyplRights")
       true
@@ -129,16 +172,24 @@ class CustomDelegate
     end
   end
 
-  def is_not_restricted?(rights, type)
-    logger = Java::edu.illinois.library.cantaloupe.script.Logger
+  def available_derivatives(rights)
     rights_json = JSON.parse(rights)
     nypl_rights = rights_json['nyplRights']
-    available_derivatives_for_ip = nypl_rights['availableDerivatives']['$']
+    @available_derivatives_for_ip = nypl_rights['availableDerivatives']['$']
+    @available_derivatives_for_ip
+  end
+
+  def is_not_restricted?(rights, type)
+    logger = Java::edu.illinois.library.cantaloupe.script.Logger
+    # rights_json = JSON.parse(rights)
+    # nypl_rights = rights_json['nyplRights']
+    # @available_derivatives_for_ip = available_derivatives(@rights) #= #nypl_rights['availableDerivatives']['$']
+    logger.debug("@available_derivatives_for_ip are: #{@available_derivatives_for_ip}")
     if type == "full_res"
       logger.debug("FULL RES FILE ACCESS")
-      available_derivatives_for_ip.include?('g') || available_derivatives_for_ip.include?('j') || available_derivatives_for_ip.include?('s') 
+     @available_derivatives_for_ip.include?('g') ||@available_derivatives_for_ip.include?('j') ||@available_derivatives_for_ip.include?('s') 
     else
-      available_derivatives_for_ip.include?(type)
+     @available_derivatives_for_ip.include?(type)
     end
   end
 
@@ -188,7 +239,6 @@ class CustomDelegate
         }
     }
 =end
-    {}
   end
 
   ##
@@ -215,6 +265,10 @@ class CustomDelegate
   #
   def filesystemsource_pathname(options = {})
     logger = Java::edu.illinois.library.cantaloupe.script.Logger
+    @rights = get_rights(context['identifier'], context['client_ip'])
+    available_derivatives(@rights)
+    logger.debug("is_zoomed_region? is: #{is_zoomed_region?()}")
+    logger.debug("@available_derivatives_for_ip are: #{@available_derivatives_for_ip}")
     url = Secret.database_configuration[:url]
     username = Secret.database_configuration[:username]
     password = Secret.database_configuration[:password]
@@ -223,9 +277,8 @@ class CustomDelegate
     statement = nil
     uuid = nil
     begin
-      query =  "SELECT UUID FROM file_store WHERE TYPE in ('j', 's', 'g', 'v', 'q', 'w', 'r', 't') "
-      query += "AND FILE_ID = ? AND STATUS = 4 "
-      query += "ORDER BY TYPE = 'j' DESC, TYPE = 's' DESC, TYPE = 'g' DESC, TYPE = 'v' DESC, TYPE = 'q' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC"
+      query = generate_query()
+      logger.debug("query is #{query}")
       statement = connection.prepare_statement(query)
       statement.setString(1, context['identifier'])
       results = statement.execute_query
@@ -250,6 +303,28 @@ class CustomDelegate
     else
       path
     end
+  end
+
+  def generate_query()
+    logger = Java::edu.illinois.library.cantaloupe.script.Logger
+    query = ""
+    if is_zoomed_region?()
+        logger.debug("is_not_restricted? is: #{is_not_restricted?(@rights, "full_res")}")
+      if is_not_restricted?(@rights, "full_res")
+        query =  "SELECT UUID FROM file_store WHERE TYPE in ('j', 's', 'g', 'v', 'q', 'w', 'r', 't') "
+        query += "AND FILE_ID = ? AND STATUS = 4 "
+        query += "ORDER BY TYPE = 'j' DESC, TYPE = 's' DESC, TYPE = 'g' DESC, TYPE = 'v' DESC, TYPE = 'q' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC"
+      else 
+        query =  "SELECT UUID FROM file_store WHERE TYPE in ('w', 'r', 't') "
+        query += "AND FILE_ID = ? AND STATUS = 4 "
+        query += "ORDER BY TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC"
+      end
+    else 
+        query =  "SELECT UUID FROM file_store WHERE TYPE in ('j', 's', 'g', 'v', 'q', 'w', 'r', 't') "
+        query += "AND FILE_ID = ? AND STATUS = 4 "
+        query += "ORDER BY TYPE = 'j' DESC, TYPE = 's' DESC, TYPE = 'g' DESC, TYPE = 'v' DESC, TYPE = 'q' DESC, TYPE = 'w' DESC, TYPE = 'r' DESC, TYPE = 't' DESC"
+    end
+    return query
   end
 
   ##
