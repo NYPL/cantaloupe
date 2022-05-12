@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added rights restrictions for regions of an image. (DR-1849)
+- Added designated properties files for dev and prod. (DR-1865)
 
 ### Updaed
 - Remove restrictions from info.json endpoint. (DR-1469)
