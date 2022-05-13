@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4] - 2022-05-13
+
 ### Added
 - Added rights restrictions for regions of an image. (DR-1849)
 - Added designated properties files for dev and prod. (DR-1865)
