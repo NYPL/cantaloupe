@@ -47,3 +47,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Config files for qa and production. (DR-1360)
 - Added rights aware logic to return appropriate capture types for an IP address. (DR-1529)
 - Added 403 response for restricted images. (DR-1387)
+
