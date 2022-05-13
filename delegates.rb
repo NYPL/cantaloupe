@@ -87,12 +87,21 @@ class CustomDelegate
     #'65.88.88.115'
     logger.debug("CONTEXT HASH: #{context}")
     logger.debug("REQUEST URI: #{context['request_uri']}")
-    type = context['request_uri'].include?("info.json") ? "full_res" : derivative_type(context['resulting_size'])
-    logger.debug("TYPE: #{type}")
-    rights = get_rights(context['identifier'], context['client_ip'])
-    allowed = returns_rights?(rights) && is_not_restricted?(rights, type)
-    logger.debug("ALLOWED? #{allowed}")
-    allowed
+    if context['request_uri'].include?("info.json") 
+      true
+    else 
+      type = is_region?()? "full_res" : derivative_type(context['resulting_size'])
+      logger.debug("TYPE: #{type}")
+      rights = get_rights(context['identifier'], context['client_ip'])
+      allowed = returns_rights?(rights) && is_not_restricted?(rights, type)
+      logger.debug("ALLOWED? #{allowed}")
+      allowed
+    end
+  end
+
+  def is_region?()
+    region = context['request_uri'].split('/')[6]
+    (region == "full" || region == "square") ? false : true 
   end
 
   def derivative_type(size)
