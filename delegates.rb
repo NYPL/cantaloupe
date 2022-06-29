@@ -178,7 +178,7 @@ class CustomDelegate
     end
     
     # logger.debug("RESPONSE IS: #{response}")
-    return response
+    return response.body
   end
 
   def api_url(path)
