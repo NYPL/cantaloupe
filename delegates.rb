@@ -82,19 +82,18 @@ class CustomDelegate
   # @return [Boolean,Hash<String,Object>] See above.
   #
   def authorize(options = {})
-    logger = Java::edu.illinois.library.cantaloupe.script.Logger
     # full_res_file_access = ['10.128.99.55','10.128.1.167','10.224.6.10','10.128.99.167','10.128.98.50','10.224.6.26','10.224.6.35','172.16.1.94', '66.234.38.35']
     #'65.88.88.115'
-    logger.debug("CONTEXT HASH: #{context}")
-    logger.debug("REQUEST URI: #{context['request_uri']}")
+    @logger.debug("CONTEXT HASH: #{context}")
+    @logger.debug("REQUEST URI: #{context['request_uri']}")
     if context['request_uri'].include?("info.json") 
       true
     else 
       type = is_region?()? "full_res" : derivative_type(context['resulting_size'])
-      logger.debug("TYPE: #{type}")
+      @logger.debug("TYPE: #{type}")
       rights = get_rights(context['identifier'], context['client_ip'])
       allowed = returns_rights?(rights) && is_not_restricted?(rights, type)
-      logger.debug("ALLOWED? #{allowed}")
+      @logger.debug("ALLOWED? #{allowed}")
       allowed
     end
   end
@@ -135,12 +134,11 @@ class CustomDelegate
   end
 
   def is_not_restricted?(rights, type)
-    logger = Java::edu.illinois.library.cantaloupe.script.Logger
     rights_json = JSON.parse(rights)
     nypl_rights = rights_json['nyplRights']
     available_derivatives_for_ip = nypl_rights['availableDerivatives']['$']
     if type == "full_res"
-      logger.debug("FULL RES FILE ACCESS")
+      @logger.debug("FULL RES FILE ACCESS")
       available_derivatives_for_ip.include?('g') || available_derivatives_for_ip.include?('j') || available_derivatives_for_ip.include?('s') 
     else
       available_derivatives_for_ip.include?(type)
@@ -157,11 +155,28 @@ class CustomDelegate
   end
 
   def fetch(path, ip)
-    logger = Java::edu.illinois.library.cantaloupe.script.Logger
-    logger.debug("API URL IS: #{api_url(path)}")
-    logger.debug("IPS ARE: #{ip}")
-    response = `curl --location --request POST #{api_url(path)} -H 'Accept: application/json' -H 'Content-Type: application/json' -H 'Authorization: Token token=#{Secret.api_configuration[:auth_token]}' --data-raw '{"ips":["#{ip}"]}'`
-    logger.debug("RESPONSE IS: #{response}")
+    require 'net/http'
+    require 'uri'
+
+    @logger.debug("API URL IS: #{api_url(path)}")
+    @logger.debug("IPS ARE: #{ip}")
+
+    uri = URI.parse(api_url(path))
+    request = Net::HTTP::Post.new(uri)
+    request.body = `'{"ips":["#{ip}"]}'`
+    request.set_content_type("application/json")
+    request["Accept"] = "application/json"
+    request["Authorization"] = "Token token=#{Secret.api_configuration[:auth_token]}"
+    
+    req_options = {
+      use_ssl: uri.scheme == "https",
+    }
+
+    response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
+      http.request(request)
+    end
+    
+    @logger.debug("RESPONSE IS: #{response}")
     return response
   end
 
@@ -219,7 +234,6 @@ class CustomDelegate
   #                      given identifier, or nil if not found.
   #
   def filesystemsource_pathname(options = {})
-    logger = Java::edu.illinois.library.cantaloupe.script.Logger
     url = Secret.database_configuration[:url]
     username = Secret.database_configuration[:username]
     password = Secret.database_configuration[:password]
@@ -236,9 +250,9 @@ class CustomDelegate
       results = statement.execute_query
       if results.next
         uuid = results.getString('UUID')
-        logger.debug("UUID: #{uuid}")
+        @logger.debug("UUID: #{uuid}")
       else
-        logger.debug('NO RESULTS...')
+        @logger.debug('NO RESULTS...')
       end
     ensure
       connection.close if connection
