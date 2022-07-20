@@ -151,7 +151,7 @@ class CustomDelegate
     # uuid = '943f6f8f-f5cf-e0b8-e040-e00a18063cff'
     # for testing restricted image_id
     # image_id: 1992268
-    # http://api.repo.nypl.org/api/v2/captures/rights/1992268
+    # https://api.repo.nypl.org/api/v2/captures/rights/1992268
     fetch("captures/rights/#{image_id}", ip)
   end
 
