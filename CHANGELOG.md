@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Changed response for filepath to serve no default image when an image is not found. (DR-2041)
+
 ## [0.1.5] - 2022-07-06
 
 ### Changed
