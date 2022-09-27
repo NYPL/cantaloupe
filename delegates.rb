@@ -262,13 +262,16 @@ class CustomDelegate
     end
     
     path = nil
-    
     if not uuid.nil?
       uuid =~ /(....)(....)\-(....)\-(....)\-(....)\-(....)(....)(..)../
       path = "/ifs/prod/repo/#{uuid[0..1]}/#{$1}/#{$2}/#{$3}/#{$4}/#{$5}/#{$6}/#{$7}/#{$8}/#{uuid}"
     end
     
-    path
+    if path.nil? && default_image_path.present?
+      default_image_path
+    else
+      path
+    end
   end
 
   ##
