@@ -6,11 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.6] - 2022-09-28
+
+### Changed
+- Changed response for filepath to serve no default image when an image is not found. (DR-2041)
+
 ## [0.1.5] - 2022-07-06
 
 ### Changed
 - Changed logger calls to use already created logger. (DR-1925)
 - Changed call to API to not be curl command but instead use basic net http. (DR-1925)
+- Switch Repo API connections to https (DR-1958)
 
 ## [0.1.4] - 2022-05-13
 
