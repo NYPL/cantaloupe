@@ -151,7 +151,7 @@ class CustomDelegate
     # uuid = '943f6f8f-f5cf-e0b8-e040-e00a18063cff'
     # for testing restricted image_id
     # image_id: 1992268
-    # http://api.repo.nypl.org/api/v2/captures/rights/1992268
+    # https://api.repo.nypl.org/api/v2/captures/rights/1992268
     fetch("captures/rights/#{image_id}", ip)
   end
 
@@ -266,8 +266,9 @@ class CustomDelegate
       uuid =~ /(....)(....)\-(....)\-(....)\-(....)\-(....)(....)(..)../
       path = "/ifs/prod/repo/#{uuid[0..1]}/#{$1}/#{$2}/#{$3}/#{$4}/#{$5}/#{$6}/#{$7}/#{$8}/#{uuid}"
     end
-    if path.nil? 
-      default_image_path != nil ? default_image_path : "/ifs/prod/repo/FF/FF02/CD3C/93C7/11DD/A1C2/8CF9/9956/CD/FF02CD3C-93C7-11DD-A1C2-8CF99956CD08"
+    
+    if path.nil? && default_image_path != nil
+      default_image_path
     else
       path
     end
