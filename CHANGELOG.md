@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Changed database address for filestore to replica address. (DR-2108)
+
 ## [0.1.6] - 2022-09-28
 
 ### Changed
