@@ -59,6 +59,82 @@ class CustomDelegate
   attr_accessor :context
 
   ##
+  # Deserializes the given meta-identifier string into a hash of its component
+  # parts.
+  #
+  # This method is used only when the `meta_identifier.transformer`
+  # configuration key is set to `DelegateMetaIdentifierTransformer`.
+  #
+  # The hash contains the following keys:
+  #
+  # * `identifier`       [String] Required.
+  # * `page_number`      [Integer] Optional.
+  # * `scale_constraint` [Array<Integer>] Two-element array with scale
+  #                      constraint numerator at position 0 and denominator at
+  #                      position 1. Optional.
+  #
+  # @param meta_identifier [String]
+  # @return Hash<String,Object> See above. The return value should be
+  #                             compatible with the argument to
+  #                             {serialize_meta_identifier}.
+  #
+  def deserialize_meta_identifier(meta_identifier)
+  end
+
+    ##
+  # Serializes the given meta-identifier hash.
+  #
+  # This method is used only when the `meta_identifier.transformer`
+  # configuration key is set to `DelegateMetaIdentifierTransformer`.
+  #
+  # See {deserialize_meta_identifier} for a description of the hash structure.
+  #
+  # @param components [Hash<String,Object>]
+  # @return [String] Serialized meta-identifier compatible with the argument to
+  #                  {deserialize_meta_identifier}.
+  #
+  def serialize_meta_identifier(components)
+  end
+
+    ##
+  # Returns authorization status for the current request. This method is called
+  # upon all requests to all public endpoints early in the request cycle,
+  # before the image has been accessed. This means that some context keys (like
+  # `full_size`) will not be available yet.
+  #
+  # This method should implement all possible authorization logic except that
+  # which requires any of the context keys that aren't yet available. This will
+  # ensure efficient authorization failures.
+  #
+  # Implementations should assume that the underlying resource is available,
+  # and not try to check for it.
+  #
+  # Possible return values:
+  #
+  # 1. Boolean true/false, indicating whether the request is fully authorized
+  #    or not. If false, the client will receive a 403 Forbidden response.
+  # 2. Hash with a `status_code` key.
+  #     a. If it corresponds to an integer from 200-299, the request is
+  #        authorized.
+  #     b. If it corresponds to an integer from 300-399:
+  #         i. If the hash also contains a `location` key corresponding to a
+  #            URI string, the request will be redirected to that URI using
+  #            that code.
+  #         ii. If the hash also contains `scale_numerator` and
+  #            `scale_denominator` keys, the request will be
+  #            redirected using that code to a virtual reduced-scale version of
+  #            the source image.
+  #     c. If it corresponds to 401, the hash must include a `challenge` key
+  #        corresponding to a WWW-Authenticate header value.
+  #
+  # @param options [Hash] Empty hash.
+  # @return [Boolean,Hash<String,Object>] See above.
+  #
+  def pre_authorize(options = {})
+    true
+  end
+
+  ##
   # Tells the server whether to redirect in response to the request. Will be
   # called upon all image requests.
   #
@@ -83,7 +159,7 @@ class CustomDelegate
   def authorize(options = {})
     # full_res_file_access = ['10.128.99.55','10.128.1.167','10.224.6.10','10.128.99.167','10.128.98.50','10.224.6.26','10.224.6.35','172.16.1.94', '66.234.38.35']
     #'65.88.88.115'
-    # logger = Java::edu.illinois.library.cantaloupe.script.Logger
+    # logger = Java::edu.illinois.library.cantaloupe.delegate.Logger
     # logger.debug("CONTEXT HASH: #{context}")
     # logger.debug("REQUEST URI: #{context['request_uri']}")
     if context['request_uri'].include?("info.json") 
@@ -134,7 +210,7 @@ class CustomDelegate
   end
 
   def is_not_restricted?(rights, type)
-    # logger = Java::edu.illinois.library.cantaloupe.script.Logger
+    # logger = Java::edu.illinois.library.cantaloupe.delegate.Logger
     rights_json = JSON.parse(rights)
     nypl_rights = rights_json['nyplRights']
     available_derivatives_for_ip = nypl_rights['availableDerivatives']['$']
@@ -158,7 +234,7 @@ class CustomDelegate
   def fetch(path, ip)
     require 'net/http'
     require 'uri'
-    # logger = Java::edu.illinois.library.cantaloupe.script.Logger
+    # logger = Java::edu.illinois.library.cantaloupe.delegate.Logger
     #.logger.debug("API URL IS: #{api_url(path)}")
     # logger.debug("IPS ARE: #{ip}")
 
@@ -213,6 +289,19 @@ class CustomDelegate
   end
 
   ##
+  # Adds additional keys to an Image API 3.x information response. See the
+  # [IIIF Image API 3.0](http://iiif.io/api/image/3.0/#image-information)
+  # specification and "endpoints" section of the user manual.
+  #
+  # @param options [Hash] Empty hash.
+  # @return [Hash] Hash to merge into an Image API 3.x information response.
+  #                Return an empty hash to add nothing.
+  #
+  def extra_iiif3_information_response_keys(options = {})
+    {}
+  end
+
+  ##
   # Tells the server which source to use for the given identifier.
   #
   # @param options [Hash] Empty hash.
@@ -235,7 +324,7 @@ class CustomDelegate
   #                      given identifier, or nil if not found.
   #
   def filesystemsource_pathname(options = {})
-    # logger = Java::edu.illinois.library.cantaloupe.script.Logger
+    # logger = Java::edu.illinois.library.cantaloupe.delegate.Logger
     url = Secret.database_configuration[:url]
     username = Secret.database_configuration[:username]
     password = Secret.database_configuration[:password]
@@ -353,6 +442,62 @@ class CustomDelegate
   #
   def redactions(options = {})
     []
+  end
+
+  ##
+  # Returns XMP metadata to embed in the derivative image.
+  #
+  # Source image metadata is available in the `metadata` context key, and has
+  # the following structure:
+  #
+  # ```
+  # {
+  #     "exif": {
+  #         "tagSet": "Baseline TIFF",
+  #         "fields": {
+  #             "Field1Name": value,
+  #             "Field2Name": value,
+  #             "EXIFIFD": {
+  #                 "tagSet": "EXIF",
+  #                 "fields": {
+  #                     "Field1Name": value,
+  #                     "Field2Name": value
+  #                 }
+  #             }
+  #         }
+  #     },
+  #     "iptc": [
+  #         "Field1Name": value,
+  #         "Field2Name": value
+  #     ],
+  #     "xmp_string": "<rdf:RDF>...</rdf:RDF>",
+  #     "xmp_model": https://jena.apache.org/documentation/javadoc/jena/org/apache/jena/rdf/model/Model.html
+  #     "native": {
+  #         # structure varies
+  #     }
+  # }
+  # ```
+  #
+  # * The `exif` key refers to embedded EXIF data. This also includes IFD0
+  #   metadata from source TIFFs, whether or not an EXIF IFD is present.
+  # * The `iptc` key refers to embedded IPTC IIM data.
+  # * The `xmp_string` key refers to raw embedded XMP data, which may or may
+  #   not contain EXIF and/or IPTC information.
+  # * The `xmp_model` key contains a Jena Model object pre-loaded with the
+  #   contents of `xmp_string`.
+  # * The `native` key refers to format-specific metadata.
+  #
+  # Any combination of the above keys may be present or missing depending on
+  # what is available in a particular source image.
+  #
+  # Only XMP can be embedded in derivative images. See the user manual for
+  # examples of working with the XMP model programmatically.
+  #
+  # @return [String,Model,nil] String or Jena model containing XMP data to
+  #                            embed in the derivative image, or nil to not
+  #                            embed anything.
+  #
+  def metadata(options = {})
   end
 
 end
