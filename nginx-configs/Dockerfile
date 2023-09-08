@@ -1,4 +1,4 @@
-FROM nginx:1.15.8
+FROM nginx:1.25
 
 WORKDIR /etc/nginx
 RUN rm ./conf.d/default.conf
