@@ -58,3 +58,5 @@ function mapImageServerToIIIF(request, response) {
   // var imageUrl = "http://172.17.0.1:8182/iiif/2/" + identitifier + "/" + crop + "/" + urlSegment + "/0/" + quality
   return imageUrl ; 
 }
+
+export default mapImageServerToIIIF;
