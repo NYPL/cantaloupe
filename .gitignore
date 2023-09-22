@@ -10,3 +10,5 @@ tmp/
 local-imagecache/
 secrets.rb
 cantaloupe/
+*.swp
+*.swo
