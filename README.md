@@ -28,7 +28,7 @@ Our branches (in order or stability are):
 |:-----------|:------------|:-----------------|:-----------------------------------------------------|
 | main       | none        | NA               | NA                                                   |
 | develop    | none        | NA               | NA                                                   |
-| qa         | qa          | nypl-digital-dev | https://dev-iiif.nypl.org/index.php?id=1590363&t=w   |
+| qa         | qa          | nypl-digital-dev | https://qa-iiif.nypl.org/index.php?id=1590363&t=w    |
 | production | production  | nypl-digital-dev | https://iiif-prod.nypl.org/index.php?id=1590363&t=w  |
 
 1. Feature branches are cut from `develop`.
@@ -42,5 +42,5 @@ We use Bamboo for deployments.
 
 | Job ...                                             | Deploys branch ... | Deploys to ...     |
 |:----------------------------------------------------|:-------------------|:-------------------|
-| `https://bamboo02.nypl.org/browse/DAMS-DCRNI`       | `qa`               | dev-iiif.nypl.org  |
+| `https://bamboo02.nypl.org/browse/DAMS-DCRNI`       | `qa`               | qa-iiif.nypl.org   |
 | `https://bamboo02.nypl.org/browse/DAMS-DCRNP`       | `production`       | iiif-prod.nypl.org |
