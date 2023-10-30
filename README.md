@@ -20,6 +20,8 @@ This branch looks for source images in the `./images` directory, which is mounte
 
 Source and derivative images are cached in `./cache`, which is mounted into the container at `/ifs/prod/iiif-imagecache`.
 
+You can download images from the production repo and put them into `./repo` using the correct directory structure. If you then connect your local canteloupe instance to the qa filestore, as long as the added images exist in that database, the local shim should be able to serve them. This is useful for testing images that don't render.
+
 ## Git Workflow
 
 Our branches (in order or stability are):
