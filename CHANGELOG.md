@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Rendered regressed images (DR-2578)
+
 ### Upgraded
 - Upgraded nginx to 1.25
 - Upgraded Canteloupe to 5.0.5 (DR-2419)
