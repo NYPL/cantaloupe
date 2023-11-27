@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-- Deploy via Travis (DR-2660)
+- Build via Travis (DR-2660)
 
 ### Fixed
 - Rendered regressed images (DR-2578)
