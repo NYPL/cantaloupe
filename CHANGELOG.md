@@ -6,12 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Build via Travis (DR-2660)
+
 ### Fixed
 - Rendered regressed images (DR-2578)
 
 ### Upgraded
-- Upgraded nginx to 1.25
 - Upgraded Canteloupe to 5.0.5 (DR-2419)
+
+## [0.1.8] - 2023-10-29
+- Upgraded nginx to 1.25
 
 ## [0.1.7] - 2022-11-10
 
