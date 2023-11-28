@@ -2,7 +2,7 @@
 # Push only if it's not a pull request
 if [ -z "$TRAVIS_PULL_REQUEST" ] || [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   # Push only if we're testing a deployable branch
-  if [ "$TRAVIS_BRANCH" == "develop" ] || [ "$TRAVIS_BRANCH" == "DR-2660-ecs-anywhere-poc" ]; then
+  if [ "$TRAVIS_BRANCH" == "develop" ]; then
     export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID_DEVELOPMENT
     export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_DEVELOPMENT
     DOCKER_REPO_URL=$REMOTE_IMAGE_URL
