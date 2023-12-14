@@ -245,7 +245,7 @@ class CustomDelegate
     request['Authorization'] = "Token token=#{Secret.api_configuration[:auth_token]}"
 
     http = Net::HTTP.new(uri.hostname, uri.port)
-    http.use_ssl = true if uri.scheme == 'https' # which it should be, as I've hard-coded the api url to https.
+    http.use_ssl = true
 
     response = http.request(request)
 
