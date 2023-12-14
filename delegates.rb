@@ -234,31 +234,26 @@ class CustomDelegate
   def fetch(path, ip)
     require 'net/http'
     require 'uri'
-    # logger = Java::edu.illinois.library.cantaloupe.delegate.Logger
-    #.logger.debug("API URL IS: #{api_url(path)}")
-    # logger.debug("IPS ARE: #{ip}")
-
+    require 'json'
+    
     uri = URI.parse(api_url(path))
-    request = Net::HTTP::Post.new(uri)
-    request.body = `'{"ips":["#{ip}"]}'`
-    request.set_content_type("application/json")
-    request["Accept"] = "application/json"
-    request["Authorization"] = "Token token=#{Secret.api_configuration[:auth_token]}"
-    
-    req_options = {
-      use_ssl: uri.scheme == "https",
-    }
 
-    response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
-      http.request(request)
-    end
-    
-    # logger.debug("RESPONSE IS: #{response}")
+    request = Net::HTTP::Post.new(uri)
+    request.body = '{"ips":["#{ip}"]}'
+    request.content_type = 'application/json'
+    request['Accept'] = 'application/json'
+    request['Authorization'] = "Token token=#{Secret.api_configuration[:auth_token]}"
+
+    http = Net::HTTP.new(uri.hostname, uri.port)
+    http.use_ssl = true if uri.scheme == 'https' # which it should be, as I've hard-coded the api url to https.
+
+    response = http.request(request)
+
     return response.body
   end
 
   def api_url(path)
-    "#{Secret.api_configuration[:api_url]}/api/v2/#{path}"
+    "https://api.repo.nypl.org/api/v2/#{path}"
   end
 
   ##

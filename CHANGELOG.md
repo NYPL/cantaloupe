@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Rendered regressed images (DR-2578)
+- Forced use of https API urls. (DR-2570)
 
 ### Upgraded
 - Upgraded nginx to 1.25
