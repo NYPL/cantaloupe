@@ -26,11 +26,11 @@ You can download images from the production repo and put them into `./repo` usin
 
 Our branches (in order or stability are):
 
-| Branch     | Environment | AWS Account      | Example link                                      |
-|:-----------|:------------|:-----------------|:--------------------------------------------------|
-| develop    | none        | NA               | NA                                                |
-| qa         | qa          | nypl-digital-dev | https://qa-iiif.nypl.org/index.php?id=1590363&t=w |
-| production | production  | nypl-digital-dev | https://iiif.nypl.org/index.php?id=1590363&t=w    |
+| Branch     | Environment | AWS Account      | Example link                                        |
+|:-----------|:------------|:-----------------|:----------------------------------------------------|
+| develop    | none        | NA               | NA                                                  |
+| qa         | qa          | nypl-digital-dev | https://iiif-qa.nypl.org/index.php?id=1590363&t=w   |
+| production | production  | nypl-digital-dev | https://iiif-prod.nypl.org/index.php?id=1590363&t=w |
 
 1. Feature branches are cut from `develop`.
 2. Once the feature branch is ready to be merged, file a pull request of the branch _into_ develop.
