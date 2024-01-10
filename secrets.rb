@@ -9,7 +9,7 @@ class Secret
 
   def self.api_configuration
     {
-      api_url: ENV['API_URL'],
+      api_url: 'https://api.repo.nypl.org/',
       auth_token: ENV['AUTH_TOKEN']
     }
   end

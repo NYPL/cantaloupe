@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Rendered regressed images (DR-2578)
 - Forced use of https API urls. (DR-2570)
+- Updated secrets.rb to not use env variable for api url. (DR-2570)
 
 ### Upgraded
 - Upgraded Canteloupe to 5.0.5 (DR-2419)
