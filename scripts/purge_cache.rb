@@ -45,8 +45,8 @@ end
 
 parser = OptionParser.new do |opts|
   opts.banner = "Usage: #{File.basename($0)} [options]"
-  opts.on("-h", "--hostname", String, "Cantaloupe service hostname")
-  opts.on("-p", "--port", String, "Cantaloupe service port")
+  opts.on("-h", "--hostname [HOSTNAME]", String, "Cantaloupe service hostname")
+  opts.on("-p", "--port [PORT]", String, "Cantaloupe service port")
 
   opts.on("-A", "--all", TrueClass, "Purge all items from cache")
   opts.on("-i", "--identifier [IDENTIFIER]", String, "Purge one identifier from cache")
