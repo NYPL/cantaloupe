@@ -6,7 +6,10 @@ cache/
 db/data/
 log/
 images/
+repo/
 tmp/
 local-imagecache/
 secrets.rb
 cantaloupe/
+*.swp
+*.swo
