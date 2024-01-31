@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.0] - 2024-01-31
 
+### Added
+- Enabled the administrative console and remote management API (DR-2705)
+- Add a script to purge items from the cache (DR-2706)
+- Add list of items that need cache purging in production (DR-2707)
+
 ### Changed
 - Build via Travis (DR-2660)
 
