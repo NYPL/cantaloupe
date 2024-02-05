@@ -30,6 +30,10 @@ You can download images from the production repo and put them into `./repo` usin
 - Create the image's filepath directory in your local `repo` folder with `mkdir -p <path_without_filename>` (for example: `mkdir -p /B1/B116/AD22/0697/11E2/9D4C/8488/957D/67`). Then, copy the downloaded image into the created directory.
 - Rebuild your containers and run them. You should now be able to use the local shim to view the downloaded image.
 
+## Running Unit Tests
+- Install jruby on your local (homebrew is fine on mac)
+- Do `jruby test/<test_file_name>` to run tests
+
 ## Git Workflow
 
 Our branches (in order or stability are):
