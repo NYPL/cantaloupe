@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Fixed identification of f derivative types (DR-2761)
+
 ## [0.2.0] - 2024-01-31
 
 ### Added
