@@ -22,6 +22,18 @@ Source and derivative images are cached in `./cache`, which is mounted into the 
 
 You can download images from the production repo and put them into `./repo` using the correct directory structure. If you then connect your local canteloupe instance to the qa filestore, as long as the added images exist in that database, the local shim should be able to serve them. This is useful for testing images that don't render.
 
+## Testing Images Locally
+- Update `nginx-configs/image_server_to_iiif.js` for local shim use as mentioned above.
+- Configure DB_URL, DB_UNAME, and DB_PASS in .env to connect to the qa or production filestore database
+- Download an image from the production image repo to your local.
+- Note the image's filepath as you're doing this. You can also find the path by attempting to render the image using the shim locally as long as you're connected to a remote filestore database from local. The filepath will be in the stack trace shown in the browser.
+- Create the image's filepath directory in your local `repo` folder with `mkdir -p <path_without_filename>` (for example: `mkdir -p /B1/B116/AD22/0697/11E2/9D4C/8488/957D/67`). Then, copy the downloaded image into the created directory.
+- Rebuild your containers and run them. You should now be able to use the local shim to view the downloaded image.
+
+## Running Unit Tests
+- Install jruby on your local (homebrew is fine on mac)
+- Do `jruby test/<test_file_name>` to run tests
+
 ## Git Workflow
 
 Our branches (in order or stability are):
