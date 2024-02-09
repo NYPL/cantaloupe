@@ -1,13 +1,5 @@
 ###########################################################################
-# Sample Cantaloupe configuration file
-#
-# Copy this file to `cantaloupe.properties` and edit as desired.
-#
-# Keys may change from version to version. See the "Upgrading" section of
-# the website.
-#
-# Most changes will take effect without restarting. Those that won't are
-# marked with "!!".
+# Cantaloupe configuration file for QA environment
 ###########################################################################
 
 # !! Leave blank to use the JVM default temporary directory.
