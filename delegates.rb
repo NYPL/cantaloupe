@@ -10,9 +10,9 @@ require 'json'
 # to be thread-safe, but sharing information across instances (requests)
 # **does** need to be thread-safe.
 #
-# This version of the script works with Cantaloupe version 4, and not earlier
+# This version of the script works with Cantaloupe version 5, and not earlier
 # versions. Likewise, earlier versions of the script are not compatible with
-# Cantaloupe 4.
+# Cantaloupe 5.
 #
 require './secrets'
 # require 'net/http'
@@ -162,9 +162,9 @@ class CustomDelegate
     # logger = Java::edu.illinois.library.cantaloupe.delegate.Logger
     # logger.debug("CONTEXT HASH: #{context}")
     # logger.debug("REQUEST URI: #{context['request_uri']}")
-    if context['request_uri'].include?("info.json") 
+    if context['request_uri'].include?("info.json")
       true
-    else 
+    else
       type = is_region?()? "full_res" : derivative_type(context['resulting_size'])
       # logger.debug("TYPE: #{type}")
       rights = get_rights(context['identifier'], context['client_ip'])
@@ -176,31 +176,35 @@ class CustomDelegate
 
   def is_region?()
     region = context['request_uri'].split('/')[6]
-    (region == "full" || region == "square") ? false : true 
+    (region == "full" || region == "square") ? false : true
   end
 
+  # We use ranges, although the upper bound is the expected value for the derivative type.
+  # In practice, it can be a bit less.
   def derivative_type(size)
-    longest_side = size["width"] > size["height"] ? size["width"] : size["height"]
+    height = size['height']
+    longest_side = java.lang.Math.max(height, size['width'])
+
     case
-      when (longest_side <= 100)
-        "b"
-      when (longest_side > 100 && longest_side <= 140)
-        "f"
-      when (longest_side > 140 && longest_side <= 150)
-        "t"
-      when (longest_side > 150 && longest_side <= 300)
-        "r"
-      when (longest_side > 300 && longest_side <= 760)
-        "w"
-      when (longest_side > 760 && longest_side <= 1600)
-        "q"
-      when (longest_side > 1600 && longest_side <= 2560)
-        "v"
-      else
-        "full_res"
+    when longest_side <= 100
+      'b'
+    when (101..140).cover?(height)
+      'f'
+    when (141..150).cover?(longest_side)
+      't'
+    when (151..300).cover?(longest_side)
+      'r'
+    when (301..760).cover?(longest_side)
+      'w'
+    when (761..1600).cover?(longest_side)
+      'q'
+    when (1601..2560).cover?(longest_side)
+      'v'
+    else
+      'full_res'
     end
   end
-  
+
   def returns_rights?(rights)
     if rights.include?("nyplRights")
       true
