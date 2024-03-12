@@ -5,9 +5,9 @@ services:
     env_file:
       - ./.env
     volumes:
+      - 'repo-nfs-volume:/ifs/prod/repo'
+      - 'cache-nfs-volume:/ifs/prod/iiif-imagecache'
       - './images:/var/www/images.nypl.org'
-      - './cache:/ifs/prod/iiif-imagecache'
-      - './repo:/ifs/prod/repo'
     ports:
       - '8182:8182'
 
@@ -26,3 +26,17 @@ services:
       - ./db/setup:/docker-entrypoint-initdb.d
     ports:
       - 3306:3306
+
+volumes:
+  repo-nfs-volume:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: 'addr=ica.repo.nypl.org,vers=4,soft'
+      device: ':/ifs/prod/repo'
+  cache-nfs-volume:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: 'addr=ica.repo.nypl.org,vers=4,soft'
+      device: ':/ifs/prod/iiif-imagecache'
