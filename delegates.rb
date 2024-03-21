@@ -243,7 +243,12 @@ class CustomDelegate
     uri = URI.parse(api_url(path))
 
     request = Net::HTTP::Post.new(uri)
-    request.body = '{"ips":["#{ip}"]}'
+    request.body = "{\"ips\":[\"#{ip}\"]}"
+    
+    # for testing, uncomment the following lines: 
+    # puts "This should include a real ip:"
+    # puts request.body 
+    
     request.content_type = 'application/json'
     request['Accept'] = 'application/json'
     request['Authorization'] = "Token token=#{Secret.api_configuration[:auth_token]}"
