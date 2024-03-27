@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+- Created a bypass for images features on the DC Facelift homepage to not call Repo API. (DR-2873)
+
 ## [0.2.2] - 2024-03-20
 
 ### Changed
