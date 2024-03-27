@@ -2,17 +2,19 @@
 require 'minitest/autorun'
 require_relative '../delegates'
 
+# Mocking HOMEPAGE_IMAGE_RIGHTS_HASH constant to return rights for a specific image_id
+class CustomDelegate
+  HOMEPAGE_IMAGE_RIGHTS_HASH = {
+    "58270299" => "rights for image 58270299"
+  }
+end
+
 class YourClassTest < Minitest::Test
   def setup
     @delegates = CustomDelegate.new
   end
 
   def test_get_rights_with_homepage_image_id
-    # Mocking homepage_image_rights_hash method to return rights for a specific image_id
-    def @delegates.homepage_image_rights_hash
-      { "58270299" => "rights for image 58270299" }
-    end
-    
     assert_equal "rights for image 58270299", @delegates.get_rights("58270299", "123.123.123.123")
   end
 
