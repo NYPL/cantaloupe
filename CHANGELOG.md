@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+- Bypass RepoAPI rights call for DC Facelift homepage swimlane images (DR-2873)
+
 ## [0.2.2] - 2024-03-20
 
 ### Changed
