@@ -1,5 +1,8 @@
 require 'java'
 require 'json'
+
+require 'dalli'
+
 ##
 # Sample Ruby delegate script containing stubs and documentation for all
 # available delegate methods. See the "Delegate Script" section of the user
@@ -101,6 +104,10 @@ HOMEPAGE_IMAGE_RIGHTS_HASH = {
   "psnypl_mss_1228" => "{\"nyplRights\":{\"useStatement\":[{\"use\":{\"$\":\"Can be displayed on NYPL premises\"}},{\"use\":{\"$\":\"Can be used on NYPL website\"}},{\"use\":{\"$\":\"Can be used inside free NYPL exhibition catalogs and in free NYPL brochures\"}},{\"use\":{\"$\":\"Can be used in advertising for NYPL exhibitions, on catalog covers, in press kits, or fundraising activities\"}},{\"use\":{\"$\":\"Can be sold through 3rd party print partner (e.g., New York Times)\"}},{\"use\":{\"$\":\"Can be licensed to 3rd party websites\"}},{\"use\":{\"$\":\"Can be used in products created by NYPL for commercial gain (e.g., Library Shop, CDs, DVDs, etc.)\"}},{\"use\":{\"type\":\"copyright_status\",\"$\":\"PDCDPP\"},\"useStatementText\":{\"$\":\"The New York Public Library believes that this item is in the public domain under the laws of the United States, but did not make a determination as to its copyright status under the copyright laws of other countries. This item may not be in the public domain under the laws of other countries. Though not required, if you want to credit us as the source, please use the following statement, \\\"From The New York Public Library,\\\" and provide a link back to the item on our Digital Collections site. Doing so helps us track how our collection is used and helps justify freely releasing even more content in the future.\"},\"useStatementURI\":{\"$\":\"http://rightsstatements.org/vocab/NoC-US/1.0/\"}}],\"isRestrictedForIP\":{\"$\":\"false\"},\"availableDerivatives\":{\"$\":\"[\\\"t\\\", \\\"f\\\", \\\"b\\\", \\\"q\\\", \\\"v\\\", \\\"g\\\", \\\"r\\\", \\\"w\\\", \\\"s\\\", \\\"j\\\"]\"}}}",
   "psnypl_spn_610" => "{\"nyplRights\":{\"useStatement\":[{\"use\":{\"$\":\"Can be displayed on NYPL premises\"}},{\"use\":{\"$\":\"Can be used on NYPL website\"}},{\"use\":{\"$\":\"Can be used inside free NYPL exhibition catalogs and in free NYPL brochures\"}},{\"use\":{\"$\":\"Can be used in advertising for NYPL exhibitions, on catalog covers, in press kits, or fundraising activities\"}},{\"use\":{\"$\":\"Can be sold through 3rd party print partner (e.g., New York Times)\"}},{\"use\":{\"$\":\"Can be licensed to 3rd party websites\"}},{\"use\":{\"$\":\"Can be used in products created by NYPL for commercial gain (e.g., Library Shop, CDs, DVDs, etc.)\"}},{\"use\":{\"type\":\"copyright_status\",\"$\":\"PDCDPP\"},\"useStatementText\":{\"$\":\"The New York Public Library believes that this item is in the public domain under the laws of the United States, but did not make a determination as to its copyright status under the copyright laws of other countries. This item may not be in the public domain under the laws of other countries. Though not required, if you want to credit us as the source, please use the following statement, \\\"From The New York Public Library,\\\" and provide a link back to the item on our Digital Collections site. Doing so helps us track how our collection is used and helps justify freely releasing even more content in the future.\"},\"useStatementURI\":{\"$\":\"http://rightsstatements.org/vocab/NoC-US/1.0/\"}}],\"rightsNotes\":{\"$\":\"Items are part of the Spencer Collection at NYPL\"},\"isRestrictedForIP\":{\"$\":\"false\"},\"availableDerivatives\":{\"$\":\"[\\\"t\\\", \\\"f\\\", \\\"b\\\", \\\"q\\\", \\\"v\\\", \\\"g\\\", \\\"r\\\", \\\"w\\\", \\\"s\\\", \\\"j\\\"]\"}}}"
 }.freeze
+
+rights_cache = Dalli::Client.new(
+  Secret.memcached_configuration[:url],
+  { namespace: "rights" })
 
 class CustomDelegate
   ##
@@ -311,7 +318,8 @@ class CustomDelegate
     end
   end
 
-  def get_rights(image_id, ip)    
+  def get_rights(image_id, ip)
+    logger.info("get_rights method")
     # Short circuit the lookup if in the list of DC facelift image_ids
     if HOMEPAGE_IMAGE_RIGHTS_HASH.keys.include?(image_id)
       HOMEPAGE_IMAGE_RIGHTS_HASH[image_id]
@@ -321,11 +329,15 @@ class CustomDelegate
       # for testing restricted image_id
       # image_id: 1992268
       # https://api.repo.nypl.org/api/v2/captures/rights/1992268
-      fetch("captures/rights/#{image_id}", ip)
+      logger.info("getting rights from cache?")
+      rights_cache.fetch("#{ip}- #{image_id}", 10.seconds) do
+      logger.info("rights cache miss")
+        fetch_rights("captures/rights/#{image_id}", ip)
+      end
     end
   end
 
-  def fetch(path, ip)
+  def fetch_rights(path, ip)
     require 'net/http'
     require 'uri'
     require 'json'

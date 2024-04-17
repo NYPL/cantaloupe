@@ -1,0 +1,13 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    dalli (3.2.8)
+
+PLATFORMS
+  universal-java-1.8
+
+DEPENDENCIES
+  dalli (~> 3.2)
+
+BUNDLED WITH
+   2.3.26

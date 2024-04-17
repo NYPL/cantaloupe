@@ -19,6 +19,12 @@ COPY cantaloupe-5.0.5.jar .
 # Copy JDBC driver
 COPY mysql-connector-java-8.0.27.jar .
 
+# Copy and install gems
+# TODO: bundle is not available, how to install gems?
+COPY Gemfile .
+COPY Gemfile.lock .
+RUN bundle install
+
 # Copy config
 COPY cantaloupe.properties .
 COPY delegates.rb .
