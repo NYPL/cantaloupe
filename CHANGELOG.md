@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.4] - 2024-04-04
 
+### Added
+- Serve robots.txt to discourage web crawlers (DR-2929)
+
 ### Changed
 - Bypass RepoAPI rights call for DC Facelift homepage featured images (DR-2901)
 - Reduced logging level from trace to info (DR-2892)
