@@ -9,7 +9,8 @@ You will rarely need to build the underlying cantaloupe project from source. Thi
 
 ### Building on a Mac
 
-* v5.0.5 (the currently used base) is built using a Java 11 runtime. To install this locally, use `brew install openjdk@11`
+* NYPL is maintaining a forked version of https://github.com/cantaloupe-project/cantaloupe that lives at https://github.com/NYPL/cantaloupe-project. This forked repository is included in the current project as a submodule in /cantaloupe-project.
+* v5.0.5 (the currently used base version) is built using a Java 11 runtime. To install this locally, use `brew install openjdk@11`
 * Once Java 11 is installed, you'll want to set it as the default. Find the installation directory with `brew --prefix openjdk@11`
 * You may need to symlink the new installation with `sudo ln -sfn <path_to_installation_directory>/openjdk@11/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-11.jdk`
 * Open your shell config file (for a bash shell, this'll be `~/.bashrc` or `~/.bash_profile`, for zshell, it's `~/.zshrc`)
