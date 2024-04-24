@@ -5,11 +5,10 @@ It is configured to read source images from S3.
 
 ## Building
 
-You will rarely need to build the underlying cantaloupe project from source. This will only be necessary when a version upgrade is being undertaken or code changes to the source are necessary.
+You will rarely need to build the underlying cantaloupe project from source. This will only be necessary when a version upgrade is being undertaken or code changes to the source are necessary. NYPL is maintaining a forked version of https://github.com/cantaloupe-project/cantaloupe that lives at https://github.com/NYPL/cantaloupe-project. This forked repository is included in the current project as a submodule in /cantaloupe-project.
 
 ### Building on a Mac
 
-* NYPL is maintaining a forked version of https://github.com/cantaloupe-project/cantaloupe that lives at https://github.com/NYPL/cantaloupe-project. This forked repository is included in the current project as a submodule in /cantaloupe-project.
 * v5.0.5 (the currently used base version) is built using a Java 11 runtime. To install this locally, use `brew install openjdk@11`
 * Once Java 11 is installed, you'll want to set it as the default. Find the installation directory with `brew --prefix openjdk@11`
 * You may need to symlink the new installation with `sudo ln -sfn <path_to_installation_directory>/openjdk@11/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-11.jdk`
