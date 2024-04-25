@@ -1,4 +1,4 @@
-FROM openjdk:11
+FROM jruby:9.4-jre11
 
 # Install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -30,4 +30,4 @@ COPY cantaloupe.properties .
 COPY delegates.rb .
 COPY secrets.rb .
 
-CMD java -cp ./mysql-connector-java-8.0.27.jar:./cantaloupe-5.0.5.jar -Dcantaloupe.config=./cantaloupe.properties -Xmx2g edu.illinois.library.cantaloupe.StandaloneEntry
+CMD java -cp ./mysql-connector-java-8.0.27.jar -Dcantaloupe.config=./cantaloupe.properties -Xmx2g -jar cantaloupe-5.0.5.jar
