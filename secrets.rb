@@ -7,6 +7,12 @@ class Secret
     }
   end
 
+  def self.memcached_configuration
+    {
+      url: ENV['MEMCACHED_URL']
+    }
+  end
+
   def self.api_configuration
     {
       api_url: ENV['API_URL'],
