@@ -1,4 +1,4 @@
-FROM openjdk:11
+FROM jruby:9.4-jre17
 
 # Install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -11,13 +11,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     redis-server \
   && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /cantaloupe
+WORKDIR /usr/src/app
 
 # Copy Cantaloupe jar
 COPY cantaloupe-5.0.5.jar .
 
 # Copy JDBC driver
 COPY mysql-connector-java-8.0.27.jar .
+
+# Install gems
+COPY Gemfile Gemfile.lock ./
+RUN bundle install
 
 # Copy config
 COPY cantaloupe.properties .
