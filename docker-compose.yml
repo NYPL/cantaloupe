@@ -11,18 +11,17 @@ services:
       - './app:/usr/src/app'
     ports:
       - '8182:8182'
-
-  # shim:
-  #   build: ./nginx-configs
-  #   ports:
-  #     - "8080:80"
-  # db:
-  #   image: mysql
-  #   command: --default-authentication-plugin=mysql_native_password
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: password
-  #   volumes:
-  #     - ./db/data:/var/lib/mysql
-  #     - ./db/setup:/docker-entrypoint-initdb.d
-  #   ports:
-  #     - 3306:3306
+  shim:
+    build: ./nginx-configs
+    ports:
+      - "8080:80"
+  db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - ./db/data:/var/lib/mysql
+      - ./db/setup:/docker-entrypoint-initdb.d
+    ports:
+      - 3306:3306
