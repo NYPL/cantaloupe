@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Fork cantaloupe project and include it as a submodule in NYPL cantaloupe (DR-2934)
+- Reorganize project directory structure.
 
 ## [0.2.5] - 2024-04-23
 
