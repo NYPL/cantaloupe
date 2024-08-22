@@ -15,6 +15,7 @@ GEM
 
 PLATFORMS
   universal-java-1.8
+  x86_64-darwin-23
 
 DEPENDENCIES
   rsolr
