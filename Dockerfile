@@ -57,6 +57,7 @@ COPY secrets.rb .
 # Copy shim files
 COPY nginx-configs/nginx_conf_local.conf /etc/nginx/nginx.conf
 COPY nginx-configs/images_proxy_local.conf /etc/nginx/conf.d/
+COPY nginx-configs/shim_conf.conf /etc/nginx/conf.d/
 COPY nginx-configs/image_server_to_iiif.js /etc/nginx/conf.d/
 RUN rm /etc/nginx/conf.d/default.conf
 
