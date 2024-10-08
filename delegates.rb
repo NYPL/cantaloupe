@@ -15,7 +15,7 @@ require 'json'
 # Cantaloupe 5.
 #
 require './secrets'
-# require 'net/http'
+require 'net/http'
 
 require 'rsolr'
 
