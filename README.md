@@ -80,7 +80,7 @@ We use Bamboo for deployments. The canteloupe.properties.dev config file is appl
 
 The deployed servers do not run in docker, so the deploy scripts (configured in bamboo) are responsible for repeating the steps in the dockerfile to configure and deploy the new server and restart the service. Each server instance is updated in sequence prevent service downtime.
 
-| Job ...                                             | Deploys branch ... | Deploys to ...   | Shim ...           |
-|:----------------------------------------------------|:-------------------|:-----------------|:-------------------|
-| `https://bamboo02.nypl.org/browse/DAMS-DCRNI`       | `qa`               | qa-iiif.nypl.org | iiif-qa.nypl.org   |
-| `https://bamboo02.nypl.org/browse/DAMS-DCRNP`       | `production`       | iiif.nypl.org    | iiif-prod.nypl.org |
+| Job ...                                          | Deploys branch ... | Deploys to ...                  | Shim ...                     |
+|:-------------------------------------------------|:-------------------|:--------------------------------|:-----------------------------|
+| `https://bamboo02.nypl.org/browse/DS-IQDS`       | `qa`               | https://iiif-qa-native.nypl.org | http://iiif-qa-shim.nypl.org |
+| `https://bamboo02.nypl.org/browse/DS-IPDS`       | `production`       | https://iiif-native.nypl.org    | https://iiif-shim.nypl.org   |
