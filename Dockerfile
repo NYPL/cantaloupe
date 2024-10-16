@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     maven \
     libopenjp2-tools \
     redis-server \
+    gettext \
   && rm -rf /var/lib/apt/lists/*
 
 # The following adds the offical nginx repository to install nginx and nginx-module-njs. 
@@ -49,17 +50,25 @@ COPY mysql-connector-java-8.0.27.jar .
 COPY Gemfile Gemfile.lock ./
 RUN bundle install
 
+# Copy entrypoint
+COPY entrypoint.sh .
+#ENTRYPOINT ["./entrypoint.sh"]
+
 # Copy config
 COPY cantaloupe.properties .
 COPY delegates.rb .
 COPY secrets.rb .
 
 # Copy shim files
-COPY nginx-configs/nginx_conf_local.conf /etc/nginx/nginx.conf
-COPY nginx-configs/native_conf.conf /etc/nginx/conf.d/
+# COPY nginx-configs/nginx_conf_local.conf /etc/nginx/nginx.conf
+# COPY nginx-configs/native_conf.conf /etc/nginx/conf.d/
+# COPY nginx-configs/shim_conf.conf /etc/nginx/conf.d/
+
+RUN rm /etc/nginx/conf.d/default.conf
+COPY nginx-configs/nginx.conf /etc/nginx/nginx.conf
 COPY nginx-configs/shim_conf.conf /etc/nginx/conf.d/
 COPY nginx-configs/image_server_to_iiif.js /etc/nginx/conf.d/
-RUN rm /etc/nginx/conf.d/default.conf
+
 
 # Start the Java application and Nginx
 CMD service nginx start && \
