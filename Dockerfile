@@ -13,7 +13,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     maven \
     libopenjp2-tools \
     redis-server \
-    gettext \
   && rm -rf /var/lib/apt/lists/*
 
 # The following adds the offical nginx repository to install nginx and nginx-module-njs. 
