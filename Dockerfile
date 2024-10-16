@@ -50,19 +50,10 @@ COPY mysql-connector-java-8.0.27.jar .
 COPY Gemfile Gemfile.lock ./
 RUN bundle install
 
-# Copy entrypoint
-COPY entrypoint.sh .
-#ENTRYPOINT ["./entrypoint.sh"]
-
 # Copy config
 COPY cantaloupe.properties .
 COPY delegates.rb .
 COPY secrets.rb .
-
-# Copy shim files
-# COPY nginx-configs/nginx_conf_local.conf /etc/nginx/nginx.conf
-# COPY nginx-configs/native_conf.conf /etc/nginx/conf.d/
-# COPY nginx-configs/shim_conf.conf /etc/nginx/conf.d/
 
 RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx-configs/nginx.conf /etc/nginx/nginx.conf
